@@ -1,0 +1,11 @@
+{% extends 'layout.html' %}
+{% block content %}
+<h1>
+    {% for location in location_list %}
+        <h1>Name: {{ location.name }}</h1>
+        <h1>Address: {{ location.formatted_address }}</h1>
+        <h1>Latitude: {{ location.latitude }}, Longitude: {{ location.longitude }}</h1>
+        <h1>Place ID: {{ location.place_id }}</h1>
+    {% endfor %}
+</h1>
+{% endblock content %}
