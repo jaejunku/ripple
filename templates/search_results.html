@@ -8,6 +8,7 @@
                 <fieldset class="form-group">
                     <div class="form-group">
                         {% for location, form in submit_forms.items() %}
+                            {{ form.hidden_tag() }}
                             <h1>
                                 {{ form.submit(class="btn btn-outline-info") }}
                             </h1>

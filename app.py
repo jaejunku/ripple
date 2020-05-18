@@ -1,6 +1,6 @@
 import geocoder
 import requests
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, flash, render_template, redirect, url_for
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 
@@ -77,12 +77,16 @@ def search_near(input_location):
             form = SubmitForm()
             form.submit.label.text = f"Name: {result['name']}, Address: {result['formatted_address']}."
             submit_forms[key] = form
+        for place, form in submit_forms.items():
+            if form.validate_on_submit():
+                #We can't access frozenset items directly
+                place_dict = dict(place)
+                return redirect(url_for('location', place_id=place_dict['place_id']))
     return render_template('search_results.html', title='Search Results', submit_forms=submit_forms)
 
-
-# @app.route('/<string: place_id', methods=['GET', 'POST'])
-# def location():
-#     pass
+@app.route('/<string:place_id>', methods=['GET', 'POST'])
+def location(place_id):
+    return render_template('place.html', place_id=place_id)
 
 
 # @app.route('/home/<str:user_id>')
