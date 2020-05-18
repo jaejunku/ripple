@@ -55,7 +55,7 @@ def search_near(input_location):
     # If results is empty list (no results found), we want to ask again or give option to find somewhere far away
     # Redirect to new route?
     if not results['results']:
-        return render_template('search_results.html')
+        return render_template('search_results.html', title='Oops', error=True)
     else:
         location_list = []
         for location in results['results']:
