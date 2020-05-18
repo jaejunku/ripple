@@ -3,13 +3,18 @@
     {% if error %}
         <h1>We couldn't find any locations near you that match your search.</h1>
     {% else %}
-        <h1>
-            {% for location in location_list %}
-                <h1>Name: {{ location.name }}</h1>
-                <h1>Address: {{ location.formatted_address }}</h1>
-                <h1>Latitude: {{ location.latitude }}, Longitude: {{ location.longitude }}</h1>
-                <h1>Place ID: {{ location.place_id }}</h1>
-            {% endfor %}
-        </h1>
+        <div class="content-section">
+            <form method="POST" action="">
+                <fieldset class="form-group">
+                    <div class="form-group">
+                        {% for location, form in submit_forms.items() %}
+                            <h1>
+                                {{ form.submit(class="btn btn-outline-info") }}
+                            </h1>
+                        {% endfor %}
+                    </div>
+                </fieldset>
+            </form>
+        </div>
     {% endif %}
 {% endblock content %}

@@ -16,6 +16,7 @@ app = Flask(__name__)
 google_api_key = 'AIzaSyC7rX_hVNjF2MH2uQM4StN7tDtkHd0AqAk'
 app.config['SECRET_KEY'] = 'b87cd65425cbfb553740894dcc2fd0fe'
 
+
 # TODO replace with dummy key
 
 
@@ -28,6 +29,10 @@ def home():
 class SearchForm(FlaskForm):
     search = StringField()
     submit = SubmitField('Search')
+
+
+class SubmitForm(FlaskForm):
+    submit = SubmitField()
 
 
 @app.route('/near', methods=['GET', 'POST'])
@@ -57,16 +62,27 @@ def search_near(input_location):
     if not results['results']:
         return render_template('search_results.html', title='Oops', error=True)
     else:
+        # Create a list of locations, most relevant location comes first
         location_list = []
         for location in results['results']:
-            location_dict = {}
-            location_dict['formatted_address'] = location['formatted_address']
-            location_dict['latitude'] = location['geometry']['location']['lat']
-            location_dict['longitude'] = location['geometry']['location']['lng']
-            location_dict['name'] = location['name']
-            location_dict['place_id'] = location['place_id']
+            location_dict = {'formatted_address': location['formatted_address'],
+                             'latitude': location['geometry']['location']['lat'],
+                             'longitude': location['geometry']['location']['lng'], 'name': location['name'],
+                             'place_id': location['place_id']}
             location_list.append(location_dict)
-    return render_template('search_results.html', title='Search Results', location_list=location_list)
+        submit_forms = {}
+        # Map location (in frozenset form) to an individual submit form that we can render in our template
+        for result in location_list:
+            key = frozenset(result.items())
+            form = SubmitForm()
+            form.submit.label.text = f"Name: {result['name']}, Address: {result['formatted_address']}."
+            submit_forms[key] = form
+    return render_template('search_results.html', title='Search Results', submit_forms=submit_forms)
+
+
+# @app.route('/<string: place_id', methods=['GET', 'POST'])
+# def location():
+#     pass
 
 
 # @app.route('/home/<str:user_id>')
