@@ -12,13 +12,16 @@ app = Flask(__name__)
 #     # See https://developers.google.com/maps/documentation/timezone/get-api-key
 
 google_api_key = 'AIzaSyC7rX_hVNjF2MH2uQM4StN7tDtkHd0AqAk'
-#TODO replace with dummy key
+
+
+# TODO replace with dummy key
 
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
 def home():
     return render_template('home.html', text='hello')
+
 
 @app.route('/near', methods=['GET', 'POST'])
 def near():
@@ -27,19 +30,32 @@ def near():
     lat = str(coords[0])
     lng = str(coords[1])
     # Search query is the input from form
-    inputlocation = "warwick road"
+    inputlocation = "sears middle school"
     search_request = requests.get('https://maps.googleapis.com/maps/api/place/textsearch/json?key=' + google_api_key
-    + '&query=' + inputlocation.replace(" ", "+") + '&location=&' + lat + ',' + lng
-    + '&radius=5000&keyword=')
+                                  + '&query=' + inputlocation.replace(" ", "+") + '&location=&' + lat + ',' + lng
+                                  + '&radius=5000&keyword=')
     # Now convert the response into Python dictionary
     results = search_request.json()
-    #TODO display each result from the dictionary, allow users to pick one.
-    #TODO if there is no match, allow search again or route to far-search
-    return render_template('home.html', text=results)
+    # TODO display each result from the dictionary, allow users to pick one.
+    # TODO if there is no match, allow search again or route to far-search
+    #If results is empty list (no results found), we want to ask again or give option to find somewhere far away
+    #Redirect to new route?
+    if not results['results']:
+        return render_template('home.html')
+    else:
+        location_list = []
+        for location in results['results']:
+            location_dict = {}
+            location_dict['formatted_address'] = location['formatted_address']
+            location_dict['latitude'] = location['geometry']['location']['lat']
+            location_dict['longitude'] = location['geometry']['location']['lng']
+            location_dict['name'] = location['name']
+            location_dict['place_id'] = location['place_id']
+            location_list.append(location_dict)
+    return render_template('home.html', location_list=location_list)
 
 
 # @app.route('/home/<str:user_id>')
-#
 # @app.route('/home/<str:user_id>')
 
 
