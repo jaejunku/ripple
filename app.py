@@ -70,23 +70,15 @@ def search_near(input_location):
                              'longitude': location['geometry']['location']['lng'], 'name': location['name'],
                              'place_id': location['place_id']}
             location_list.append(location_dict)
-        submit_forms = {}
-        # Map location (in frozenset form) to an individual submit form that we can render in our template
-        for result in location_list:
-            key = frozenset(result.items())
-            form = SubmitForm()
-            form.submit.label.text = f"Name: {result['name']}, Address: {result['formatted_address']}."
-            submit_forms[key] = form
-        for place, form in submit_forms.items():
-            if form.validate_on_submit():
-                #We can't access frozenset items directly
-                place_dict = dict(place)
-                return redirect(url_for('location', place_id=place_dict['place_id']))
-    return render_template('search_results.html', title='Search Results', submit_forms=submit_forms)
+    return render_template('search_results.html', title='Search Results', location_list=location_list)
 
 @app.route('/<string:place_id>', methods=['GET', 'POST'])
 def location(place_id):
     return render_template('place.html', place_id=place_id)
+
+# @app.route('/<string:place_id>/<string:music_search>/)
+#
+# @app.route('/<string:place_id>/<string:music_search>/)
 
 
 # @app.route('/home/<str:user_id>')
