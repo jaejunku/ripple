@@ -1,6 +1,6 @@
 import geocoder
 import requests
-from flask import Flask, flash, render_template, redirect, url_for
+from flask import Flask, flash, render_template, redirect, url_for, request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 
@@ -23,6 +23,8 @@ app.config['SECRET_KEY'] = 'b87cd65425cbfb553740894dcc2fd0fe'
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
 def home():
+    submit = SubmitForm()
+
     return render_template('layout.html', title='Home')
 
 
@@ -34,6 +36,33 @@ class SearchForm(FlaskForm):
 class SubmitForm(FlaskForm):
     submit = SubmitField()
 
+
+@app.route('/authorize', methods=['GET'])
+def authorize():
+    return redirect(
+        'https://accounts.spotify.com/authorize?client_id=2bf4792df3c4489bb9720d3346d63f53&response_type=code'
+        '&redirect_uri=http%3A%2F%2F127.0.0.1%3A5000%2Fcallback%2F')
+
+
+@app.route('/callback/', methods=['GET', 'POST'])
+def callback():
+    code = request.args.get('code')
+    error = request.args.get('error')
+    state = request.args.get('state')
+    payload = {
+        'grant_type': 'authorization_code',
+        'code': code,
+        'redirect_uri': 'http://127.0.0.1:5000/callback/',
+        'client_id': '2bf4792df3c4489bb9720d3346d63f53',
+        'client_secret': 'c615ba249c4249a1a55cf459b606819b'
+    }
+    token_response = requests.post('https://accounts.spotify.com/api/token', data=payload)
+    token_text = token_response.json()
+    return render_template('layout.html', token_response=token_text, code=code)
+
+@app.route('/refreshaccesstoken')
+def refresh_access_token():
+    pass
 
 @app.route('/near', methods=['GET', 'POST'])
 def near():
@@ -71,9 +100,11 @@ def search_near(input_location):
             location_list.append(location_dict)
     return render_template('search_results.html', title='Search Results', location_list=location_list)
 
-@app.route('/<string:place_id>', methods=['GET', 'POST'])
+
+@app.route('/home/<string:place_id>', methods=['GET', 'POST'])
 def location(place_id):
     return render_template('place.html', place_id=place_id)
+
 
 # @app.route('/<string:place_id>/<string:music_search>/)
 #
