@@ -55,7 +55,6 @@ def search_near(input_location):
                                   + '&radius=5000&keyword=')
     # Now convert the response into Python dictionary
     results = search_request.json()
-    # TODO display each result from the dictionary, allow users to pick one.
     # TODO if there is no match, allow search again or route to far-search
     # If results is empty list (no results found), we want to ask again or give option to find somewhere far away
     # Redirect to new route?
