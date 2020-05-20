@@ -14,37 +14,39 @@ app.config['SECRET_KEY'] = 'b87cd65425cbfb553740894dcc2fd0fe'
 
 # TODO replace with dummy key
 
-
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
 def home():
     if 'access_token' in session:
+        user_profile = requests.get('https://api.spotify.com/v1/me',
+                                    headers={'Authorization': 'Bearer ' + session['access_token']})
+        user_json = user_profile.json()
         return render_template('home.html',
-                               access_token=session['access_token'],
-                               token_type=session['token_type'],
-                               refresh_token=session['refresh_token'],
-                               login_authorized=session['login_authorized'])
-    return render_template('home.html')
+                               display_name=user_json.get("display_name"),
+                               id=user_json.get("id"),
+                               email=user_json.get("email"),
+                               images=user_json.get("images")
+                               )
+    else:
+        return render_template('home.html')
+
 
 class SearchForm(FlaskForm):
     search = StringField()
     submit = SubmitField('Search')
 
 
-class SubmitForm(FlaskForm):
-    submit = SubmitField()
-
-
 @app.route('/authorize', methods=['GET'])
 def authorize():
     return redirect(
         'https://accounts.spotify.com/authorize?client_id=2bf4792df3c4489bb9720d3346d63f53&response_type=code'
-        '&redirect_uri=http%3A%2F%2F127.0.0.1%3A5000%2Fcallback%2F')
+        '&redirect_uri=http%3A%2F%2F127.0.0.1%3A5000%2Fcallback%2F&scope=user-read-private%20user-read-email%20user'
+        '-top-read%20')
 
 
 @app.route('/callback/', methods=['GET', 'POST'])
 def callback():
-    #Use code obtained after user authorizes access to exchange it for token
+    # Use code obtained after user authorizes access to exchange it for token
     code = request.args.get('code')
     error = request.args.get('error')
     state = request.args.get('state')
@@ -65,6 +67,8 @@ def callback():
     session['login_authorized'] = True
     return redirect(url_for('home'))
 
+
+# TODO write function to refresh access token if expired
 @app.route('/refreshaccesstoken')
 def refresh_access_token(refresh_token):
     pass

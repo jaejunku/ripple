@@ -1,11 +1,22 @@
 {% extends 'layout.html' %}
 {% block content %}
-<div class="container">
-      <h2>Log in with spotify</h2>
-      <h2>access token: {{ access_token }}</h2>
-      <h2>token type: {{ token_type }}</h2>
-      <h2>refresh token: {{ refresh_token }}</h2>
-    <h2>login: {{ login_authorized }}</h2>
-</div>
+    <div>
+        <h2>User: {{ display_name }}</h2>
+        <h2>ID: {{ id }}</h2>
+        <h2>Email: {{ email }}</h2>
+        <h2>Images:</h2>
+        {% for image in images %}
+            <img src={{ image['url'] }} alt="Profile Pic">
+        {% endfor %}
+    </div>
+        <div class="container">
+            <h2>Log in with spotify</h2>
+            <h2>access token: {{ access_token }}</h2>
+            <h2>token type: {{ token_type }}</h2>
+            <h2>refresh token: {{ refresh_token }}</h2>
+            <h2>login: {{ login_authorized }}</h2>
+        </div>
+
+
 <div> <h1 class="hello">hello</h1></div>
 {% endblock content %}
