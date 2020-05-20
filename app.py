@@ -11,6 +11,10 @@ app = Flask(__name__)
 google_api_key = 'AIzaSyC7rX_hVNjF2MH2uQM4StN7tDtkHd0AqAk'
 app.config['SECRET_KEY'] = 'b87cd65425cbfb553740894dcc2fd0fe'
 
+class SearchForm(FlaskForm):
+    search = StringField()
+    submit = SubmitField('Search')
+
 
 # TODO replace with dummy key
 
@@ -18,6 +22,7 @@ app.config['SECRET_KEY'] = 'b87cd65425cbfb553740894dcc2fd0fe'
 @app.route('/home', methods=['GET', 'POST'])
 def home():
     if 'access_token' in session:
+        login_authorized = True
         user_profile = requests.get('https://api.spotify.com/v1/me',
                                     headers={'Authorization': 'Bearer ' + session['access_token']})
         user_json = user_profile.json()
@@ -25,16 +30,22 @@ def home():
                                display_name=user_json.get("display_name"),
                                id=user_json.get("id"),
                                email=user_json.get("email"),
-                               images=user_json.get("images")
+                               images=user_json.get("images"),
+                               access_token = session['access_token'],
+                               token_type = session['token_type'],
+                               refresh_token = session['refresh_token'],
+                               login_authorized=True
                                )
     else:
         return render_template('home.html')
 
-
-class SearchForm(FlaskForm):
-    search = StringField()
-    submit = SubmitField('Search')
-
+@app.route('/logout', methods=['GET'])
+def logout():
+    key_list = list(session.keys())
+    for key in key_list:
+        session.pop(key)
+    login_authorized = False
+    return redirect(url_for('home'))
 
 @app.route('/authorize', methods=['GET'])
 def authorize():
@@ -43,7 +54,6 @@ def authorize():
         '&redirect_uri=http%3A%2F%2F127.0.0.1%3A5000%2Fcallback%2F&scope=user-read-private%20user-read-email%20user'
         '-top-read%20')
 
-
 @app.route('/callback/', methods=['GET', 'POST'])
 def callback():
     # Use code obtained after user authorizes access to exchange it for token
@@ -51,22 +61,23 @@ def callback():
     error = request.args.get('error')
     state = request.args.get('state')
     if error:
+        login_authorized = False
         return redirect(url_for('home'))
-    payload = {
-        'grant_type': 'authorization_code',
-        'code': code,
-        'redirect_uri': 'http://127.0.0.1:5000/callback/',
-        'client_id': '2bf4792df3c4489bb9720d3346d63f53',
-        'client_secret': 'c615ba249c4249a1a55cf459b606819b'
-    }
-    token_response = requests.post('https://accounts.spotify.com/api/token', data=payload)
-    token_json = token_response.json()
-    session['access_token'] = token_json.get("access_token")
-    session['token_type'] = token_json.get("token_type")
-    session['refresh_token'] = token_json.get("refresh_token")
-    session['login_authorized'] = True
-    return redirect(url_for('home'))
-
+    else:
+        payload = {
+            'grant_type': 'authorization_code',
+            'code': code,
+            'redirect_uri': 'http://127.0.0.1:5000/callback/',
+            'client_id': '2bf4792df3c4489bb9720d3346d63f53',
+            'client_secret': 'c615ba249c4249a1a55cf459b606819b'
+        }
+        token_response = requests.post('https://accounts.spotify.com/api/token', data=payload)
+        token_json = token_response.json()
+        session['access_token'] = token_json.get("access_token")
+        session['token_type'] = token_json.get("token_type")
+        session['refresh_token'] = token_json.get("refresh_token")
+        login_authorized = True
+        return redirect(url_for('home'))
 
 # TODO write function to refresh access token if expired
 @app.route('/refreshaccesstoken')
