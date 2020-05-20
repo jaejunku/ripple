@@ -1,17 +1,12 @@
 import geocoder
 import requests
-from flask import Flask, flash, render_template, redirect, url_for, request
+from flask import Flask, flash, session, render_template, redirect, url_for, request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 
 # from flask_sql
 
 app = Flask(__name__)
-
-# def get_coordinates():
-#     # The maps_key defined below isn't a valid Google Maps API key.
-#     # You need to get your own API key.
-#     # See https://developers.google.com/maps/documentation/timezone/get-api-key
 
 google_api_key = 'AIzaSyC7rX_hVNjF2MH2uQM4StN7tDtkHd0AqAk'
 app.config['SECRET_KEY'] = 'b87cd65425cbfb553740894dcc2fd0fe'
@@ -23,10 +18,13 @@ app.config['SECRET_KEY'] = 'b87cd65425cbfb553740894dcc2fd0fe'
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
 def home():
-    submit = SubmitForm()
-
-    return render_template('layout.html', title='Home')
-
+    if 'access_token' in session:
+        return render_template('home.html',
+                               access_token=session['access_token'],
+                               token_type=session['token_type'],
+                               refresh_token=session['refresh_token'],
+                               login_authorized=session['login_authorized'])
+    return render_template('home.html')
 
 class SearchForm(FlaskForm):
     search = StringField()
@@ -46,9 +44,12 @@ def authorize():
 
 @app.route('/callback/', methods=['GET', 'POST'])
 def callback():
+    #Use code obtained after user authorizes access to exchange it for token
     code = request.args.get('code')
     error = request.args.get('error')
     state = request.args.get('state')
+    if error:
+        return redirect(url_for('home'))
     payload = {
         'grant_type': 'authorization_code',
         'code': code,
@@ -57,11 +58,15 @@ def callback():
         'client_secret': 'c615ba249c4249a1a55cf459b606819b'
     }
     token_response = requests.post('https://accounts.spotify.com/api/token', data=payload)
-    token_text = token_response.json()
-    return render_template('layout.html', token_response=token_text, code=code)
+    token_json = token_response.json()
+    session['access_token'] = token_json.get("access_token")
+    session['token_type'] = token_json.get("token_type")
+    session['refresh_token'] = token_json.get("refresh_token")
+    session['login_authorized'] = True
+    return redirect(url_for('home'))
 
 @app.route('/refreshaccesstoken')
-def refresh_access_token():
+def refresh_access_token(refresh_token):
     pass
 
 @app.route('/near', methods=['GET', 'POST'])
@@ -72,7 +77,7 @@ def near():
     return render_template('near.html', title='Search Near', form=search_form)
 
 
-@app.route('/near/<string:input_location>', methods=['GET', 'POST'])
+@app.route('/place/<string:input_location>', methods=['GET', 'POST'])
 def search_near(input_location):
     # Approximate user geolocation with ip address
     coords = geocoder.ip('me').latlng
