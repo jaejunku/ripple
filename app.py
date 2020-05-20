@@ -1,6 +1,8 @@
 import geocoder
 import requests
+from datetime import datetime
 from flask import Flask, flash, session, render_template, redirect, url_for, request
+from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 
@@ -10,7 +12,30 @@ app = Flask(__name__)
 
 google_api_key = 'AIzaSyC7rX_hVNjF2MH2uQM4StN7tDtkHd0AqAk'
 app.config['SECRET_KEY'] = 'b87cd65425cbfb553740894dcc2fd0fe'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 
+db = SQLAlchemy(app)
+
+#Database classes: A collection can have many songs, a song can have many posts
+class Collection(db.Model):
+    id = db.Column(db.String, primary_key=True)
+    songs = db.relationship('Song', backref='collection')
+
+class Song(db.Model):
+    song_uri = db.Column(db.String, primary_key=True)
+    song_title = db.Column(db.String, nullable=False)
+    album_picture = db.Column(db.String, nullable=False)
+    users = db.relationship('Post', backref='song')
+    collection_id = db.Column(db.String, db.ForeignKey('collection_id'), nullable=False)
+
+class Post(db.Model):
+    post_id = db.Column(db.Integer, primary_key=True)
+    post_picture = db.Column(db.String)
+    post_content = db.Column(db.Text)
+    date_posted = db.Column(db.DateTime, default=datetime.utcnow)
+    song_id = db.Column(db.String, db.ForeignKey('song_id'), nullable=False)
+
+# TODO add data required validator
 class SearchForm(FlaskForm):
     search = StringField()
     submit = SubmitField('Search')
@@ -22,7 +47,6 @@ class SearchForm(FlaskForm):
 @app.route('/home', methods=['GET', 'POST'])
 def home():
     if 'access_token' in session:
-        login_authorized = True
         user_profile = requests.get('https://api.spotify.com/v1/me',
                                     headers={'Authorization': 'Bearer ' + session['access_token']})
         user_json = user_profile.json()
@@ -37,14 +61,13 @@ def home():
                                login_authorized=True
                                )
     else:
-        return render_template('home.html')
+        return render_template('home.html', login_authorized=False)
 
 @app.route('/logout', methods=['GET'])
 def logout():
     key_list = list(session.keys())
     for key in key_list:
         session.pop(key)
-    login_authorized = False
     return redirect(url_for('home'))
 
 @app.route('/authorize', methods=['GET'])
@@ -61,7 +84,6 @@ def callback():
     error = request.args.get('error')
     state = request.args.get('state')
     if error:
-        login_authorized = False
         return redirect(url_for('home'))
     else:
         payload = {
@@ -76,7 +98,7 @@ def callback():
         session['access_token'] = token_json.get("access_token")
         session['token_type'] = token_json.get("token_type")
         session['refresh_token'] = token_json.get("refresh_token")
-        login_authorized = True
+        session['login_authorized'] = True
         return redirect(url_for('home'))
 
 # TODO write function to refresh access token if expired

@@ -1,6 +1,7 @@
 {% extends 'layout.html' %}
 {% block content %}
-    <div>
+    {% if login_authorized %}
+        <div>
         <h2>User: {{ display_name }}</h2>
         <h2>ID: {{ id }}</h2>
         <h2>Email: {{ email }}</h2>
@@ -14,7 +15,7 @@
             <h2>token type: {{ token_type }}</h2>
             <h2>refresh token: {{ refresh_token }}</h2>
         </div>
-
-
-<div> <h1 class="hello">hello</h1></div>
+    {% else %}
+        <h1>hello, please login with spotify</h1>
+    {% endif %}
 {% endblock content %}
