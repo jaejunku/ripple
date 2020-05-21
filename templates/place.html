@@ -2,9 +2,11 @@
 {% block content %}
 <a href={{ url_for('search_music', place_id=place_id, address=address) }}>Add Song</a>
 {% if in_db %}
-    Viewing the Collection for {{ address }}
+    <h1>Viewing the Collection for <h2>{{ address }}</h2></h1>
     {% for song in songs %}
-        {{ song }}
+        <div>
+            {{ song }}
+        </div>
     {% endfor %}
 {% else %}
 {% endif %}
