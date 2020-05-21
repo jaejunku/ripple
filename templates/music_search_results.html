@@ -6,13 +6,15 @@
 {% else %}
     {% for track in tracks_list %}
         <div>
-        <h2>Song: {{ track.song }}</h2>
-        <h2>Artists: {% for artist in track.artists %} {{ artist }} {% endfor %}</h2>
-        <h2>Track URI: {{ track.uri }}</h2>
-        <h2>Preview URL: {{ track.preview_url }}</h2>
-        <h2>Album Name: {{ track.album_name }}</h2>
+            <a href={{ url_for('add_song', place_id=place_id, song_uri=track.track_uri, song_title=track.song, album_picture=track.album_images.1.url[23:], address=address)}}>
+                <h2>Song: {{ track.song }}</h2>
+            </a>
+        <p>Artists: {% for artist in track.artists %} {{ artist }} {% endfor %}</p>
+        <p>Track URI: {{ track.track_uri }}</p>
+        <p>Preview URL: {{ track.preview_url }}</p>
+        <p>Album Name: {{ track.album_name }}</p>
         <div>
-            Album Images: {% for image in track.album_images %} <img src={{ image['url'] }} alt="Album Pic"> {% endfor %}
+            <img src={{ track.album_images.1.url }} alt="Album Pic">
         </div>
         </div>
     {% endfor %}

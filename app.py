@@ -95,7 +95,6 @@ def callback():
     # Use code obtained after user authorizes access to exchange it for token
     session['code'] = request.args.get('code')
     error = request.args.get('error')
-    state = request.args.get('state')
     if error:
         return redirect(url_for('home'))
     else:
@@ -154,11 +153,11 @@ def search_near(input_location):
     else:
         # Create a list of locations, most relevant location comes first
         location_list = []
-        for location in results['results']:
-            location_dict = {'formatted_address': location['formatted_address'],
-                             'latitude': location['geometry']['location']['lat'],
-                             'longitude': location['geometry']['location']['lng'], 'name': location['name'],
-                             'place_id': location['place_id']}
+        for result in results['results']:
+            location_dict = {'formatted_address': result['formatted_address'],
+                             'latitude': result['geometry']['location']['lat'],
+                             'longitude': result['geometry']['location']['lng'], 'name': result['name'],
+                             'place_id': result['place_id']}
             location_list.append(location_dict)
     return render_template('place_search_results.html', title='Search Results', location_list=location_list)
 
@@ -174,16 +173,16 @@ def location(place_id, address):
         return render_template('place.html', in_db=True, songs=songs, place_id=place_id, address=address)
 
 
-@app.route('/collection/<string:place_id>/searchmusic', methods=['GET', 'POST'])
-def search_music(place_id):
+@app.route('/collection/<string:place_id>/address/<string:address>/searchmusic', methods=['GET', 'POST'])
+def search_music(place_id, address):
     search_form = SearchForm()
     if search_form.validate_on_submit():
-        return redirect(url_for('music_search_results', input_music=search_form.search.data, place_id=place_id))
+        return redirect(url_for('music_search_results', input_music=search_form.search.data, place_id=place_id, address=address))
     return render_template('search.html', title='Search Music', form=search_form, search_type='Music')
 
 
-@app.route('/collection/<string:place_id>/musicsearchresults/<string:input_music>')
-def music_search_results(place_id, input_music):
+@app.route('/collection/<string:place_id>/address/<string:address>/musicsearchresults/<string:input_music>')
+def music_search_results(place_id, address, input_music):
     search_request = requests.get('https://api.spotify.com/v1/search',
                                   headers={'Authorization': 'Bearer ' + session['access_token']},
                                   params={'q': input_music,
@@ -205,8 +204,19 @@ def music_search_results(place_id, input_music):
                           'album_images': track['album']['images']
                           }
             tracks_list.append(track_dict)
-        return render_template('music_search_results.html', tracks_list=tracks_list)
+        return render_template('music_search_results.html', tracks_list=tracks_list, place_id=place_id, address=address)
 
+@app.route('/collection/<string:place_id>/address/<string:address>/addsong/<string:song_uri>/<string:song_title'
+           '>/<string:album_picture>')
+def add_song(place_id, address, song_uri, song_title, album_picture):
+    if Collection.query.filter_by(id=place_id).first() is None:
+        collection = Collection(id=place_id)
+        db.session.add(collection)
+        db.session.commit()
+    song = Song(song_uri=song_uri, song_title=song_title, album_picture=album_picture, collection_id=place_id)
+    db.session.add(song)
+    db.session.commit()
+    return redirect(url_for('location', place_id=place_id, address=address))
 
 # @app.route('/home/<str:user_id>')
 # @app.route('/home/<str:user_id>')

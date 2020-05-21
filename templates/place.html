@@ -1,8 +1,11 @@
 {% extends 'layout.html' %}
 {% block content %}
-<a href={{ url_for('search_music', place_id=place_id) }}>Add Song</a>
+<a href={{ url_for('search_music', place_id=place_id, address=address) }}>Add Song</a>
 {% if in_db %}
     Viewing the Collection for {{ address }}
+    {% for song in songs %}
+        {{ song }}
+    {% endfor %}
 {% else %}
 {% endif %}
 {% endblock content %}
