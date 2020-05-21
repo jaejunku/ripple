@@ -12,6 +12,8 @@ app.config['SECRET_KEY'] = 'b87cd65425cbfb553740894dcc2fd0fe'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 db = SQLAlchemy(app)
 
+#TODO everytime we make a call to spotify API, check if token is expired; if it is, renew it
+
 
 # Database classes: A collection can have many songs, a song can have many posts
 class Collection(db.Model):
@@ -181,12 +183,26 @@ def search_music(place_id):
 def music_search_results(place_id, input_music):
     search_request = requests.get('https://api.spotify.com/v1/search',
                                   headers={'Authorization': 'Bearer ' + session['access_token']},
-                                  params={'q': input_music}
+                                  params={'q': input_music,
+                                          'type': ['track']}
                                   )
     search_json = search_request.json()
-    return render_template('music_search_results.html', search_json=search_json)
-
-
+    if 'error' in search_json:
+        return render_template('music_search_results.html', error=True, search_json=search_json)
+    elif not search_json['tracks']['items']:
+        return render_template('music_search_results.html', message='No results were found for this track.')
+    else:
+        tracks_list = []
+        for track in search_json['tracks']['items']:
+            track_dict = {'song': track['name'],
+                          'artists': [artist['name'] for artist in track['artists']],
+                          'track_uri': track['uri'],
+                          'preview_url': track['preview_url'],
+                          'album_name' : track['album']['name'],
+                          'album_images': track['album']['images']
+                          }
+            tracks_list.append(track_dict)
+        return render_template('music_search_results.html', tracks_list=tracks_list)
 # @app.route('/home/<str:user_id>')
 # @app.route('/home/<str:user_id>')
 
