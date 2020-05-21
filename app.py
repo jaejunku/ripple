@@ -58,6 +58,8 @@ class SearchForm(FlaskForm):
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
 def home():
+    # if check_token_expiration() == 0:
+    #     return redirect(url_for('refresh_access_token', access_token=session['access_token']))
     if 'access_token' in session:
         user_profile = requests.get('https://api.spotify.com/v1/me',
                                     headers={'Authorization': 'Bearer ' + session['access_token']})
@@ -95,7 +97,7 @@ def authorize():
 @app.route('/callback/', methods=['GET', 'POST'])
 def callback():
     # Use code obtained after user authorizes access to exchange it for token
-    code = request.args.get('code')
+    session['code'] = request.args.get('code')
     error = request.args.get('error')
     state = request.args.get('state')
     if error:
@@ -103,7 +105,7 @@ def callback():
     else:
         payload = {
             'grant_type': 'authorization_code',
-            'code': code,
+            'code': session['code'],
             'redirect_uri': 'http://127.0.0.1:5000/callback/',
             'client_id': '2bf4792df3c4489bb9720d3346d63f53',
             'client_secret': 'c615ba249c4249a1a55cf459b606819b'
@@ -116,12 +118,30 @@ def callback():
         session['login_authorized'] = True
         return redirect(url_for('home'))
 
+@app.route('/test')
+def check_token_expiration():
+    if 'access_token' in session:
+        payload = {
+            'grant_type': 'authorization_code',
+            'code': session['code'],
+            'redirect_uri': 'http://127.0.0.1:5000/callback/',
+            'client_id': '2bf4792df3c4489bb9720d3346d63f53',
+            'client_secret': 'c615ba249c4249a1a55cf459b606819b'
+        }
+        token_response = requests.post('https://accounts.spotify.com/api/token', data=payload)
+        token_json = token_response.json()
+        return render_template('test.html', token=token_json, code=session['code'])
 
-# TODO write function to refresh access token if expired
 @app.route('/refreshaccesstoken')
 def refresh_access_token(refresh_token):
-    pass
-
+    payload = {
+        'grant_type': 'refresh_token',
+        'refresh_token': session['refresh_token']
+    }
+    header = 'Authorization: Basic 2bf4792df3c4489bb9720d3346d63f53:c615ba249c4249a1a55cf459b606819b'
+    new_token_response = requests.post('https://accounts.spotify.com/api/token', headers=header, data=payload)
+    new_token_json = new_token_response.json()
+    session['access_token'] = new_token_json.get("access_token")
 
 @app.route('/searchnear', methods=['GET', 'POST'])
 def near():
