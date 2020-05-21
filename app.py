@@ -3,6 +3,7 @@ import requests
 from datetime import datetime
 from flask import Flask, flash, session, render_template, redirect, url_for, request
 from flask_sqlalchemy import SQLAlchemy
+from flask_apscheduler import APScheduler
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 
@@ -11,9 +12,6 @@ google_api_key = 'AIzaSyC7rX_hVNjF2MH2uQM4StN7tDtkHd0AqAk'
 app.config['SECRET_KEY'] = 'b87cd65425cbfb553740894dcc2fd0fe'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 db = SQLAlchemy(app)
-
-#TODO everytime we make a call to spotify API, check if token is expired; if it is, renew it
-
 
 # Database classes: A collection can have many songs, a song can have many posts
 class Collection(db.Model):
@@ -58,8 +56,6 @@ class SearchForm(FlaskForm):
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
 def home():
-    # if check_token_expiration() == 0:
-    #     return redirect(url_for('refresh_access_token', access_token=session['access_token']))
     if 'access_token' in session:
         user_profile = requests.get('https://api.spotify.com/v1/me',
                                     headers={'Authorization': 'Bearer ' + session['access_token']})
@@ -118,22 +114,8 @@ def callback():
         session['login_authorized'] = True
         return redirect(url_for('home'))
 
-@app.route('/test')
-def check_token_expiration():
-    if 'access_token' in session:
-        payload = {
-            'grant_type': 'authorization_code',
-            'code': session['code'],
-            'redirect_uri': 'http://127.0.0.1:5000/callback/',
-            'client_id': '2bf4792df3c4489bb9720d3346d63f53',
-            'client_secret': 'c615ba249c4249a1a55cf459b606819b'
-        }
-        token_response = requests.post('https://accounts.spotify.com/api/token', data=payload)
-        token_json = token_response.json()
-        return render_template('test.html', token=token_json, code=session['code'])
 
-@app.route('/refreshaccesstoken')
-def refresh_access_token(refresh_token):
+def refresh_access_token():
     payload = {
         'grant_type': 'refresh_token',
         'refresh_token': session['refresh_token']
@@ -142,6 +124,7 @@ def refresh_access_token(refresh_token):
     new_token_response = requests.post('https://accounts.spotify.com/api/token', headers=header, data=payload)
     new_token_json = new_token_response.json()
     session['access_token'] = new_token_json.get("access_token")
+
 
 @app.route('/searchnear', methods=['GET', 'POST'])
 def near():
@@ -218,14 +201,19 @@ def music_search_results(place_id, input_music):
                           'artists': [artist['name'] for artist in track['artists']],
                           'track_uri': track['uri'],
                           'preview_url': track['preview_url'],
-                          'album_name' : track['album']['name'],
+                          'album_name': track['album']['name'],
                           'album_images': track['album']['images']
                           }
             tracks_list.append(track_dict)
         return render_template('music_search_results.html', tracks_list=tracks_list)
+
+
 # @app.route('/home/<str:user_id>')
 # @app.route('/home/<str:user_id>')
 
 
 if __name__ == '__main__':
+    scheduler = APScheduler()
+    scheduler.add_interval_job(func=refresh_access_token, seconds=3500)
+    scheduler.start()
     app.run()
