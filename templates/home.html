@@ -6,9 +6,11 @@
         <h2>ID: {{ id }}</h2>
         <h2>Email: {{ email }}</h2>
         <h2>Images:</h2>
-        {% for image in images %}
-            <img src={{ image['url'] }} alt="Profile Pic">
-        {% endfor %}
+        {% if images %}
+            {% for image in images %}
+                <img src={{ image['url'] }} alt="Profile Pic">
+            {% endfor %}
+        {% endif %}
     </div>
         <div class="container">
             <h2>access token: {{ access_token }}</h2>

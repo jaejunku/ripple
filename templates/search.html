@@ -3,7 +3,7 @@
 <div class="content-section">
     <form method="POST" action="">
         {{ form.hidden_tag() }}
-            <legend class="border-bottom mb-4">Search Location</legend>
+            <legend class="border-bottom mb-4">Search {{ search_type }}</legend>
             <div class="search_form">
                 {{ form.search.label(class="form-control-label") }}
                 {{ form.search(class="search-form") }}
