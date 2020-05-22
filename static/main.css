@@ -1,12 +1,16 @@
-body {
-  background: #edc7b7;
-  margin-top: 5rem;
+.hero-image{
+  background-image: url("main_background.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  color: #ac3b61;
+.hero-text {
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
 }
 
-.hello{
-  font-size:10em;
-}
+

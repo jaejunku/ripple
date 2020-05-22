@@ -7,15 +7,16 @@ from flask_apscheduler import APScheduler
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 
-#TODO add ability for users to create posts and attach them to songs
-#TODO add integration for Spotify song preview when hovering over album picture
-#TODO frontend design
+# TODO add ability for users to create posts and attach them to songs
+# TODO add integration for Spotify song preview when hovering over album picture
+# TODO frontend design
 
 app = Flask(__name__)
 google_api_key = 'AIzaSyC7rX_hVNjF2MH2uQM4StN7tDtkHd0AqAk'
 app.config['SECRET_KEY'] = 'b87cd65425cbfb553740894dcc2fd0fe'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 db = SQLAlchemy(app)
+
 
 # Database classes: A collection can have many songs, a song can have many posts
 class Collection(db.Model):
@@ -77,11 +78,13 @@ def home():
     else:
         return render_template('home.html', login_authorized=False)
 
+
 def check_authorization():
     if 'access_token' in session:
         return True
     else:
         return False
+
 
 @app.route('/logout', methods=['GET'])
 def logout():
@@ -138,7 +141,8 @@ def near():
     search_form = SearchForm()
     if search_form.validate_on_submit():
         return redirect(url_for('search_near', input_location=search_form.search.data))
-    return render_template('search.html', title='Search Near', form=search_form, search_type='Near', login_authorized=check_authorization())
+    return render_template('search.html', title='Search Near', form=search_form, search_type='Near',
+                           login_authorized=check_authorization())
 
 
 @app.route('/searchnear/<string:input_location>', methods=['GET', 'POST'])
@@ -157,7 +161,8 @@ def search_near(input_location):
     # If results is empty list (no results found), we want to ask again or give option to find somewhere far away
     # Redirect to new route?
     if not results['results']:
-        return render_template('place_search_results.html', title='Oops', error=True, login_authorized=check_authorization())
+        return render_template('place_search_results.html', title='Oops', error=True,
+                               login_authorized=check_authorization())
     else:
         # Create a list of locations, most relevant location comes first
         location_list = []
@@ -167,7 +172,8 @@ def search_near(input_location):
                              'longitude': result['geometry']['location']['lng'], 'name': result['name'],
                              'place_id': result['place_id']}
             location_list.append(location_dict)
-    return render_template('place_search_results.html', title='Search Results', location_list=location_list, login_authorized=check_authorization())
+    return render_template('place_search_results.html', title='Search Results', location_list=location_list,
+                           login_authorized=check_authorization())
 
 
 @app.route('/collection/<string:place_id>/address/<string:address>', methods=['GET', 'POST'])
@@ -175,18 +181,22 @@ def location(place_id, address):
     # Route to display
     # If collection doesn't exit in the database yet
     if Collection.query.filter_by(id=place_id).first() is None:
-        return render_template('place.html', place_id=place_id, in_db=False, address=address, login_authorized=check_authorization())
+        return render_template('place.html', place_id=place_id, in_db=False, address=address,
+                               login_authorized=check_authorization())
     else:
         songs = Song.query.filter_by(collection_id=place_id)
-        return render_template('place.html', in_db=True, songs=songs, place_id=place_id, address=address, login_authorized=check_authorization())
+        return render_template('place.html', in_db=True, songs=songs, place_id=place_id, address=address,
+                               login_authorized=check_authorization())
 
 
 @app.route('/collection/<string:place_id>/address/<string:address>/searchmusic', methods=['GET', 'POST'])
 def search_music(place_id, address):
     search_form = SearchForm()
     if search_form.validate_on_submit():
-        return redirect(url_for('music_search_results', input_music=search_form.search.data, place_id=place_id, address=address))
-    return render_template('search.html', title='Search Music', form=search_form, search_type='Music', login_authorized=check_authorization())
+        return redirect(
+            url_for('music_search_results', input_music=search_form.search.data, place_id=place_id, address=address))
+    return render_template('search.html', title='Search Music', form=search_form, search_type='Music',
+                           login_authorized=check_authorization())
 
 
 @app.route('/collection/<string:place_id>/address/<string:address>/musicsearchresults/<string:input_music>')
@@ -198,9 +208,11 @@ def music_search_results(place_id, address, input_music):
                                   )
     search_json = search_request.json()
     if 'error' in search_json:
-        return render_template('music_search_results.html', error=True, search_json=search_json, login_authorized=check_authorization())
+        return render_template('music_search_results.html', error=True, search_json=search_json,
+                               login_authorized=check_authorization())
     elif not search_json['tracks']['items']:
-        return render_template('music_search_results.html', message='No results were found for this track.', login_authorized=check_authorization())
+        return render_template('music_search_results.html', message='No results were found for this track.',
+                               login_authorized=check_authorization())
     else:
         tracks_list = []
         for track in search_json['tracks']['items']:
@@ -212,7 +224,9 @@ def music_search_results(place_id, address, input_music):
                           'album_images': track['album']['images']
                           }
             tracks_list.append(track_dict)
-        return render_template('music_search_results.html', tracks_list=tracks_list, place_id=place_id, address=address, login_authorized=check_authorization())
+        return render_template('music_search_results.html', tracks_list=tracks_list, place_id=place_id, address=address,
+                               login_authorized=check_authorization())
+
 
 @app.route('/collection/<string:place_id>/address/<string:address>/addsong/<string:song_uri>/<string:song_title'
            '>/<string:album_picture>')
@@ -226,6 +240,7 @@ def add_song(place_id, address, song_uri, song_title, album_picture):
     db.session.commit()
     return redirect(url_for('location', place_id=place_id, address=address))
 
+
 # @app.route('/home/<str:user_id>')
 # @app.route('/home/<str:user_id>')
 
@@ -235,6 +250,3 @@ if __name__ == '__main__':
     scheduler.add_interval_job(func=refresh_access_token, seconds=3500)
     scheduler.start()
     app.run()
-
-
-

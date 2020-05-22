@@ -1,23 +1,18 @@
-{% extends 'layout.html' %}
-{% block content %}
-    {% if login_authorized %}
-        <div>
-        <h2>User: {{ display_name }}</h2>
-        <h2>ID: {{ id }}</h2>
-        <h2>Email: {{ email }}</h2>
-        <h2>Images:</h2>
-        {% if images %}
-            {% for image in images %}
-                <img src={{ image['url'] }} alt="Profile Pic">
-            {% endfor %}
-        {% endif %}
-    </div>
-        <div class="container">
-            <h2>access token: {{ access_token }}</h2>
-            <h2>token type: {{ token_type }}</h2>
-            <h2>refresh token: {{ refresh_token }}</h2>
-        </div>
-    {% else %}
-        <h1>hello, please login with spotify</h1>
-    {% endif %}
-{% endblock content %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+      <!-- Link the main.css file to layout.html with url_for -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
+      <title>Ripple</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&family=Roboto:wght@500&display=swap" rel="stylesheet">
+  </head>
+  <body class="hero-image hero-text">
+    <h1 style="font-size: 10em; font-family: 'Roboto', sans-serif;">Ripple</h1>
+    <p style="font-size: 1em; font-family: 'Open Sans', sans-serif;"><i>In music the passions enjoy themselves. </i> - Friedrich Nietzsche</p>
+  </body>
+</html>
