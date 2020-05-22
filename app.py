@@ -1,13 +1,14 @@
 import geocoder
 import requests
 from datetime import datetime
-from flask import Flask, flash, session, render_template, redirect, url_for, request
+from flask import Flask, session, render_template, redirect, url_for, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_apscheduler import APScheduler
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
+from wtforms import StringField, SubmitField, TextAreaField
 
 # TODO add ability for users to create posts and attach them to songs
+# TODO let users add pictures to posts
 # TODO add integration for Spotify song preview when hovering over album picture
 # TODO frontend design
 
@@ -40,8 +41,7 @@ class Song(db.Model):
 
 class Post(db.Model):
     post_id = db.Column(db.Integer, primary_key=True)
-    post_title = db.Column(db.String(100))
-    post_picture = db.Column(db.String)
+    # post_picture = db.Column(db.String)
     post_content = db.Column(db.Text)
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     song_id = db.Column(db.String, db.ForeignKey('song.song_uri'), nullable=False)
@@ -55,6 +55,9 @@ class SearchForm(FlaskForm):
     search = StringField()
     submit = SubmitField('Search')
 
+class PostForm(FlaskForm):
+    content = TextAreaField('Memory')
+    submit = SubmitField('Post')
 
 # TODO replace with dummy key
 
@@ -231,15 +234,19 @@ def music_search_results(place_id, address, input_music):
 @app.route('/collection/<string:place_id>/address/<string:address>/addsong/<string:song_uri>/<string:song_title'
            '>/<string:album_picture>')
 def add_song(place_id, address, song_uri, song_title, album_picture):
-    if Collection.query.filter_by(id=place_id).first() is None:
-        collection = Collection(id=place_id)
-        db.session.add(collection)
+    post_form = PostForm()
+    if post_form.validate_on_submit():
+        if Collection.query.filter_by(id=place_id).first() is None:
+            collection = Collection(id=place_id)
+            db.session.add(collection)
+            db.session.commit()
+        song = Song(song_uri=song_uri, song_title=song_title, album_picture=album_picture, collection_id=place_id)
+        db.session.add(song)
         db.session.commit()
-    song = Song(song_uri=song_uri, song_title=song_title, album_picture=album_picture, collection_id=place_id)
-    db.session.add(song)
-    db.session.commit()
-    return redirect(url_for('location', place_id=place_id, address=address))
-
+        # post = Post(post_id=)
+        return redirect(url_for('location', place_id=place_id, address=address))
+    return render_template('post.html', address=address, song_title=song_title,
+                           album_picture=album_picture, form=post_form)
 
 # @app.route('/home/<str:user_id>')
 # @app.route('/home/<str:user_id>')

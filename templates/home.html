@@ -11,8 +11,18 @@
       <title>Ripple</title>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&family=Roboto:wght@500&display=swap" rel="stylesheet">
   </head>
-  <body class="hero-image hero-text">
-    <h1 style="font-size: 10em; font-family: 'Roboto', sans-serif;">Ripple</h1>
-    <p style="font-size: 1em; font-family: 'Open Sans', sans-serif;"><i>In music the passions enjoy themselves. </i> - Friedrich Nietzsche</p>
-  </body>
+  {% if not login_authorized %}
+      <body class="hero-image hero-text">
+          <h1 style="font-size: 10em; font-family: 'Roboto', sans-serif;">Ripple</h1>
+          <p style="font-size: 1em; font-family: 'Open Sans', sans-serif;"><i>In music the passions enjoy themselves. </i> - Friedrich Nietzsche</p>
+          <div class="button_cont" align="center">
+              <a class="login_button" href="{{ url_for('authorize') }}">Log in with Spotify</a>
+          </div>
+      </body>
+  {% else %}
+      <body>
+        <div class="left-blue">
+        </div>
+      </body>
+  {% endif %}
 </html>

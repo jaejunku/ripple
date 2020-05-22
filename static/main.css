@@ -13,4 +13,27 @@
   color: white;
 }
 
+.login_button {
+color: #fff !important;
+text-transform: uppercase;
+text-decoration: none;
+background: #86b3d1;
+padding: 10px;
+border-radius: 45px;
+display: inline-block;
+border: none;
+transition: all 0.4s ease 0s;
+}
 
+.login_button:hover {
+color: #ffffff !important;
+background: #edb5bf;
+border-color: #edb5bf !important;
+transition: all 0.4s ease 0s;
+}
+
+.left-blue{
+  background: #4d6d9a;
+  width: 50%;
+  height: 100%;
+}
