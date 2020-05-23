@@ -3,10 +3,11 @@
 <a href={{ url_for('search_music', place_id=place_id, address=address) }}>Add Song</a>
 {% if in_db %}
     <h1>Viewing the Collection for <h2>{{ address }}</h2></h1>
-    {% for song in songs %}
-        <div>
-            {{ song }}
-        </div>
+    {% for song, posts in posts_dict.items() %}
+        {{ song }}
+        {% for post in posts %}
+            {{ post.post_content }}
+        {% endfor %}
     {% endfor %}
 {% else %}
 {% endif %}

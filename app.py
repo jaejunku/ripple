@@ -5,7 +5,7 @@ from flask import Flask, session, render_template, redirect, url_for, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_apscheduler import APScheduler
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField
+from wtforms import StringField, SubmitField, TextAreaField, BooleanField
 
 # TODO add ability for users to create posts and attach them to songs
 # TODO let users add pictures to posts
@@ -23,6 +23,7 @@ db = SQLAlchemy(app)
 class Collection(db.Model):
     id = db.Column(db.String, primary_key=True)
     songs = db.relationship('Song', backref='collection', lazy=True)
+    posts = db.relationship('Post', backref='collection', lazy=True)
 
     def __repr__(self):
         return f"Collection('{self.id}')"
@@ -45,6 +46,8 @@ class Post(db.Model):
     post_content = db.Column(db.Text)
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     song_id = db.Column(db.String, db.ForeignKey('song.song_uri'), nullable=False)
+    collection_id = db.Column(db.String, db.ForeignKey('collection.id'), nullable=False)
+    author = db.Column(db.String, nullable=False)
 
     def __repr__(self):
         return f"Post('{self.post_id}', '{self.date_posted}')"
@@ -56,6 +59,7 @@ class SearchForm(FlaskForm):
     submit = SubmitField('Search')
 
 class PostForm(FlaskForm):
+    is_anonymous = BooleanField('Anonymous')
     content = TextAreaField('Memory')
     submit = SubmitField('Post')
 
@@ -68,6 +72,8 @@ def home():
         user_profile = requests.get('https://api.spotify.com/v1/me',
                                     headers={'Authorization': 'Bearer ' + session['access_token']})
         user_json = user_profile.json()
+        session['current_user_name'] = user_json.get("display_name")
+        session['current_user_id'] = user_json.get("id")
         return render_template('home.html',
                                display_name=user_json.get("display_name"),
                                id=user_json.get("id"),
@@ -188,7 +194,10 @@ def location(place_id, address):
                                login_authorized=check_authorization())
     else:
         songs = Song.query.filter_by(collection_id=place_id)
-        return render_template('place.html', in_db=True, songs=songs, place_id=place_id, address=address,
+        posts_dict = {}
+        for song in songs:
+            posts_dict[song] = Post.query.filter_by(song_id=song.song_uri, collection_id=place_id)
+        return render_template('place.html', in_db=True, posts_dict=posts_dict, place_id=place_id, address=address,
                                login_authorized=check_authorization())
 
 
@@ -232,7 +241,7 @@ def music_search_results(place_id, address, input_music):
 
 
 @app.route('/collection/<string:place_id>/address/<string:address>/addsong/<string:song_uri>/<string:song_title'
-           '>/<string:album_picture>')
+           '>/<string:album_picture>', methods=['GET', 'POST'])
 def add_song(place_id, address, song_uri, song_title, album_picture):
     post_form = PostForm()
     if post_form.validate_on_submit():
@@ -243,8 +252,16 @@ def add_song(place_id, address, song_uri, song_title, album_picture):
         song = Song(song_uri=song_uri, song_title=song_title, album_picture=album_picture, collection_id=place_id)
         db.session.add(song)
         db.session.commit()
-        # post = Post(post_id=)
-        return redirect(url_for('location', place_id=place_id, address=address))
+        if post_form.is_anonymous.data:
+            post_author_id = 'Anonymous'
+            post_author_name = 'Anonymous'
+        else:
+            post_author_id = session['current_user_id']
+            post_author_name = session['current_user_name']
+        post = Post(post_content=post_form.content.data, song_id=song_uri, collection_id=place_id, author=post_author_id)
+        db.session.add(post)
+        db.session.commit()
+        return redirect(url_for('location', place_id=place_id, address=address, post_author=post_author_name))
     return render_template('post.html', address=address, song_title=song_title,
                            album_picture=album_picture, form=post_form)
 
