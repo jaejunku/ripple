@@ -197,7 +197,8 @@ def location(place_id, address):
     place_name = results['result']['name']
     # If collection doesn't exit in the database yet
     if Collection.query.filter_by(id=place_id).first() is None:
-        return render_template('place.html', place_id=place_id, in_db=False, address=address.replace("%20", " "),
+        return render_template('place.html', place_id=place_id, in_db=False,
+                               address=address.replace("%20", " ").replace("%2C", " "),
                                place_name=place_name, login_authorized=check_authorization())
     else:
         songs = Song.query.filter_by(collection_id=place_id)
@@ -205,7 +206,7 @@ def location(place_id, address):
         for song in songs:
             posts_dict[song] = Post.query.filter_by(song_id=song.song_uri, collection_id=place_id)
         return render_template('place.html', in_db=True, posts_dict=posts_dict, place_id=place_id,
-                               address=address.replace("%20", " "), place_name=place_name,
+                               address=address.replace("%20", " ").replace("%2C", " "), place_name=place_name,
                                login_authorized=check_authorization())
 
 
