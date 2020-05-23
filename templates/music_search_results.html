@@ -6,7 +6,7 @@
 {% else %}
     {% for track in tracks_list %}
         <div>
-            <a href={{ url_for('add_song', place_id=place_id, song_uri=track.track_uri, song_title=track.song, album_picture=track.album_images.1.url[23:], address=address)}}>
+            <a href={{ url_for('add_song', place_id=place_id, song_uri=track.track_uri, artist=track.artists.0, song_title=track.song, album_picture=track.album_images.1.url[23:], address=address)}}>
                 <h2>Song: {{ track.song }}</h2>
             </a>
         <p>Artists: {% for artist in track.artists %} {{ artist }} {% endfor %}</p>

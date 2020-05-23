@@ -7,8 +7,9 @@ from flask_apscheduler import APScheduler
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField
 
-# TODO add ability for users to create posts and attach them to songs
+
 # TODO let users add pictures to posts
+# TODO let users (optionally) specify more specific locations when adding post
 # TODO add integration for Spotify song preview when hovering over album picture
 # TODO frontend design
 
@@ -31,6 +32,7 @@ class Collection(db.Model):
 
 class Song(db.Model):
     song_uri = db.Column(db.String, primary_key=True)
+    artist = db.Column(db.String, nullable=False)
     song_title = db.Column(db.String, nullable=False)
     album_picture = db.Column(db.String, nullable=False)
     users = db.relationship('Post', backref='song', lazy=True)
@@ -47,7 +49,8 @@ class Post(db.Model):
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     song_id = db.Column(db.String, db.ForeignKey('song.song_uri'), nullable=False)
     collection_id = db.Column(db.String, db.ForeignKey('collection.id'), nullable=False)
-    author = db.Column(db.String, nullable=False)
+    author_id = db.Column(db.String, nullable=False)
+    author_name = db.Column(db.String, nullable=False)
 
     def __repr__(self):
         return f"Post('{self.post_id}', '{self.date_posted}')"
@@ -187,17 +190,22 @@ def search_near(input_location):
 
 @app.route('/collection/<string:place_id>/address/<string:address>', methods=['GET', 'POST'])
 def location(place_id, address):
-    # Route to display
+    search_request = requests.get('https://maps.googleapis.com/maps/api/place/details/json?key=' + google_api_key
+                                  + '&place_id=' + str(place_id))
+    # Now convert the response into Python dictionary
+    results = search_request.json()
+    place_name = results['result']['name']
     # If collection doesn't exit in the database yet
     if Collection.query.filter_by(id=place_id).first() is None:
-        return render_template('place.html', place_id=place_id, in_db=False, address=address,
-                               login_authorized=check_authorization())
+        return render_template('place.html', place_id=place_id, in_db=False, address=address.replace("%20", " "),
+                               place_name=place_name, login_authorized=check_authorization())
     else:
         songs = Song.query.filter_by(collection_id=place_id)
         posts_dict = {}
         for song in songs:
             posts_dict[song] = Post.query.filter_by(song_id=song.song_uri, collection_id=place_id)
-        return render_template('place.html', in_db=True, posts_dict=posts_dict, place_id=place_id, address=address,
+        return render_template('place.html', in_db=True, posts_dict=posts_dict, place_id=place_id,
+                               address=address.replace("%20", " "), place_name=place_name,
                                login_authorized=check_authorization())
 
 
@@ -241,15 +249,15 @@ def music_search_results(place_id, address, input_music):
 
 
 @app.route('/collection/<string:place_id>/address/<string:address>/addsong/<string:song_uri>/<string:song_title'
-           '>/<string:album_picture>', methods=['GET', 'POST'])
-def add_song(place_id, address, song_uri, song_title, album_picture):
+           '>/artist/<string:artist>/album/<string:album_picture>', methods=['GET', 'POST'])
+def add_song(place_id, address, song_uri, artist, song_title, album_picture):
     post_form = PostForm()
     if post_form.validate_on_submit():
         if Collection.query.filter_by(id=place_id).first() is None:
             collection = Collection(id=place_id)
             db.session.add(collection)
             db.session.commit()
-        song = Song(song_uri=song_uri, song_title=song_title, album_picture=album_picture, collection_id=place_id)
+        song = Song(song_uri=song_uri, song_title=song_title, album_picture=album_picture, collection_id=place_id, artist=artist)
         db.session.add(song)
         db.session.commit()
         if post_form.is_anonymous.data:
@@ -258,10 +266,12 @@ def add_song(place_id, address, song_uri, song_title, album_picture):
         else:
             post_author_id = session['current_user_id']
             post_author_name = session['current_user_name']
-        post = Post(post_content=post_form.content.data, song_id=song_uri, collection_id=place_id, author=post_author_id)
+        post = Post(post_content=post_form.content.data, song_id=song_uri, collection_id=place_id,
+                    author_id=post_author_id, author_name=post_author_name)
         db.session.add(post)
         db.session.commit()
-        return redirect(url_for('location', place_id=place_id, address=address, post_author=post_author_name))
+        return redirect(url_for('location', place_id=place_id, address=address, author_id=post_author_id,
+                                post_author_name=post_author_name))
     return render_template('post.html', address=address, song_title=song_title,
                            album_picture=album_picture, form=post_form)
 
