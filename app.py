@@ -32,6 +32,7 @@ class Collection(db.Model):
 
 class Song(db.Model):
     song_uri = db.Column(db.String, primary_key=True)
+    song_preview = db.Column(db.String)
     artist = db.Column(db.String, nullable=False)
     song_title = db.Column(db.String, nullable=False)
     album_picture = db.Column(db.String, nullable=False)
@@ -249,32 +250,42 @@ def music_search_results(place_id, address, input_music):
                                login_authorized=check_authorization())
 
 
-@app.route('/collection/<string:place_id>/address/<string:address>/addsong/<string:song_uri>/<string:song_title'
-           '>/artist/<string:artist>/album/<string:album_picture>', methods=['GET', 'POST'])
-def add_song(place_id, address, song_uri, artist, song_title, album_picture):
+@app.route('/collection/<string:place_id>/address/<string:address>/addsong/<string:song_uri>', methods=['GET', 'POST'])
+def add_song(place_id, address, song_uri):
     post_form = PostForm()
     if post_form.validate_on_submit():
         if Collection.query.filter_by(id=place_id).first() is None:
             collection = Collection(id=place_id)
             db.session.add(collection)
             db.session.commit()
-        song = Song(song_uri=song_uri, song_title=song_title, album_picture=album_picture, collection_id=place_id, artist=artist)
-        db.session.add(song)
-        db.session.commit()
-        if post_form.is_anonymous.data:
-            post_author_id = 'Anonymous'
-            post_author_name = 'Anonymous'
+        search_request = requests.get('https://api.spotify.com/v1/tracks/' + str(song_uri[14:]),
+                                      headers={'Authorization': 'Bearer ' + session['access_token']})
+        search_json = search_request.json()
+        if 'error' in search_json:
+            return render_template('music_search_results.html', error=True, search_json=search_json,
+                                   message=song_uri[14:],
+                                   login_authorized=check_authorization())
         else:
-            post_author_id = session['current_user_id']
-            post_author_name = session['current_user_name']
-        post = Post(post_content=post_form.content.data, song_id=song_uri, collection_id=place_id,
-                    author_id=post_author_id, author_name=post_author_name)
-        db.session.add(post)
-        db.session.commit()
-        return redirect(url_for('location', place_id=place_id, address=address, author_id=post_author_id,
-                                post_author_name=post_author_name))
-    return render_template('post.html', address=address, song_title=song_title,
-                           album_picture=album_picture, form=post_form)
+            album_picture = search_json['album']['images'][1]['url']
+            song_title = search_json['name']
+            artist = search_json['artists'][0]['name']
+            preview_url = search_json['preview_url']
+            song = Song(song_uri=song_uri, song_title=song_title, album_picture=album_picture, collection_id=place_id, artist=artist, song_preview=preview_url)
+            db.session.add(song)
+            db.session.commit()
+            if post_form.is_anonymous.data:
+                post_author_id = 'Anonymous'
+                post_author_name = 'Anonymous'
+            else:
+                post_author_id = session['current_user_id']
+                post_author_name = session['current_user_name']
+            post = Post(post_content=post_form.content.data, song_id=song_uri, collection_id=place_id,
+                        author_id=post_author_id, author_name=post_author_name)
+            db.session.add(post)
+            db.session.commit()
+            return redirect(url_for('location', place_id=place_id, address=address, author_id=post_author_id,
+                                    post_author_name=post_author_name))
+    return render_template('post.html', form=post_form)
 
 # @app.route('/home/<str:user_id>')
 # @app.route('/home/<str:user_id>')
