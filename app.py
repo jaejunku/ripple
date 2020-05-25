@@ -270,7 +270,8 @@ def add_song(place_id, address, song_uri):
             song_title = search_json['name']
             artist = search_json['artists'][0]['name']
             preview_url = search_json['preview_url']
-            song = Song(song_uri=song_uri, song_title=song_title, album_picture=album_picture, collection_id=place_id, artist=artist, song_preview=preview_url)
+            song = Song(song_uri=song_uri, song_title=song_title, album_picture=album_picture, collection_id=place_id,
+                        artist=artist, song_preview=preview_url)
             db.session.add(song)
             db.session.commit()
             if post_form.is_anonymous.data:
