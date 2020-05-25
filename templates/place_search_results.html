@@ -1,10 +1,44 @@
-{% extends 'layout.html' %}
-{% block content %}
-        {% for place in location_list %}
-            <div class="container">
-                <a class="article-title" href="{{ url_for('location', address=place.formatted_address, place_id=place.place_id) }}">
-                <h2>Name: {{ place.name }}</h2>
-                    <h2>Address: {{ place.formatted_address }}</h2></a>
-            </div>
-        {% endfor %}
-{% endblock content %}
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+table {
+  border: 1px solid #2e9cca;
+    border-collapse: collapse;
+
+  width: 100%;
+
+}
+
+th, td {
+    border: 1px solid #2e9cca;
+        border-collapse: collapse;
+    text-align: left;
+    padding: 2em;
+}
+
+</style>
+</head>
+<body style="background-color: #25274d">
+
+<h1 style="font-family: 'Roboto', sans-serif; color: white; font-size:4em;">Search Results</h1>
+
+<table>
+
+  {% for place in location_list %}
+    <tr>
+      <td>
+      <a class="article-title" href="{{ url_for('location', address=place.formatted_address, place_id=place.place_id) }}"
+            style="font-family: 'Roboto', sans-serif; color: white; font-size:2em;">{{ place.name }}</a>
+      </td>
+      <td style="font-family: 'Roboto', sans-serif; color: white; font-size:1em;">{{ place.formatted_address }}</td>
+    </tr>
+  {% endfor %}
+
+</table>
+
+</body>
+</html>
+
+
+

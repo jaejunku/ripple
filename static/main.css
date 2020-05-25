@@ -33,19 +33,5 @@ transition: all 0.4s ease 0s;
 }
 
 .bg-steel {
-  background-color: #05386b;
-}
-
-.navbar-dark .nav-item .nav-link {
-  font-family: 'Roboto', sans-serif !important;
-  color: #ffffff !important;
-}
-
-.navbar-dark .nav-item .nav-link:hover {
-  color: #edb5bf !important;
-}
-
-.navbar-dark .nav-item .nav-link.active {
-  font-family: 'Roboto', sans-serif !important;
-  font-weight: 500 !important;
+  background-color: #123c69;
 }

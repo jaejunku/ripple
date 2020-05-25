@@ -167,7 +167,7 @@ def search_near(input_location):
     # Search query is the input from form
     search_request = requests.get('https://maps.googleapis.com/maps/api/place/textsearch/json?key=' + google_api_key
                                   + '&query=' + input_location.replace(" ", "+") + '&location=&' + lat + ',' + lng
-                                  + '&radius=5000&keyword=')
+                                  + '&radius=5000')
     # Now convert the response into Python dictionary
     results = search_request.json()
     # TODO if there is no match, allow search again or route to far-search
@@ -187,6 +187,42 @@ def search_near(input_location):
             location_list.append(location_dict)
     return render_template('place_search_results.html', title='Search Results', location_list=location_list,
                            login_authorized=check_authorization())
+
+@app.route('/searchfar', methods=['GET', 'POST'])
+def far():
+    search_form = SearchForm()
+    if search_form.validate_on_submit():
+        return redirect(url_for('search_far', input_location=search_form.search.data))
+    return render_template('search.html', title='Search Far', form=search_form, search_type='Far',
+                           login_authorized=check_authorization())
+
+
+@app.route('/searchfar/<string:input_location>', methods=['GET', 'POST'])
+def search_far(input_location):
+    # Search query is the input from form
+    search_request = requests.get('https://maps.googleapis.com/maps/api/place/textsearch/json?key=' + google_api_key
+                                  + '&query=' + input_location.replace(" ", "+"))
+    # Now convert the response into Python dictionary
+    results = search_request.json()
+    # TODO if there is no match, allow search again or route to far-search
+    # If results is empty list (no results found), we want to ask again or give option to find somewhere far away
+    # Redirect to new route?
+    if not results['results']:
+        return render_template('place_search_results.html', title='Oops', error=True,
+                               login_authorized=check_authorization())
+    else:
+        # Create a list of locations, most relevant location comes first
+        location_list = []
+        for result in results['results']:
+            location_dict = {'formatted_address': result['formatted_address'],
+                             'latitude': result['geometry']['location']['lat'],
+                             'longitude': result['geometry']['location']['lng'], 'name': result['name'],
+                             'place_id': result['place_id']}
+            location_list.append(location_dict)
+    return render_template('place_search_results.html', title='Search Results', location_list=location_list,
+                           login_authorized=check_authorization())
+
+
 
 
 @app.route('/collection/<string:place_id>/address/<string:address>', methods=['GET', 'POST'])
