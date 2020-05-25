@@ -7,19 +7,9 @@
         <div>
             <audio id="{{ song.song_uri[14:] }}" src="{{ song.song_preview }}">
             </audio>
-            <button onclick="play()" type="button">Play Song</button>
-            <button onclick="pause()" type="button">Pause Song</button>
+            <button onclick="play('{{ song.song_uri[14:] }}')" type="button">Play Song</button>
+            <button onclick="pause('{{ song.song_uri[14:] }}')" type="button">Pause Song</button>
             <img src="{{ song.album_picture }}" alt="Album Picture">
-            <script>
-            function play() {
-                var audio = document.getElementById("{{ song.song_uri[14:] }}");
-                audio.play();
-            }
-            function pause() {
-                var audio = document.getElementById("{{ song.song_uri[14:] }}");
-                audio.pause();
-            }
-            </script>
         </div>
         {{ song.song_title }}
         {{ song.artist }}
@@ -29,6 +19,16 @@
             {{ post.post_content }}
         {% endfor %}
     {% endfor %}
+    <script>
+        function play(id) {
+            var audio = document.getElementById(id);
+            audio.play();
+        }
+        function pause(id) {
+            var audio = document.getElementById(id);
+            audio.pause();
+        }
+    </script>
 {% else %}
 {% endif %}
 {% endblock content %}

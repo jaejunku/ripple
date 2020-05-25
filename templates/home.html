@@ -20,19 +20,18 @@
           </div>
       </body>
   {% else %}
-      <body>
+      <body class="bg-steel">
         <header class="site-header">
           <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
             <div class="container">
-              <a class="navbar-brand mr-3" href="/">Ripple</a>
+              <a class="navbar-brand mr-4" href="/" style="font-size:3em; font-family: 'Roboto', sans-serif">Ripple</a>
                 <div class="navbar-nav mr-auto">
                   <a class="nav-item nav-link" href="{{ url_for('home') }}">Home</a>
                   <a class="nav-item nav-link" href="{{ url_for('home') }}">About</a>
                 </div>
                 <!-- Navbar Right Side -->
                 <div class="navbar-nav">
-                    <a class="nav-item nav-link" href="{{ url_for('home') }}">Login</a>
-                    <a class="nav-item nav-link" href="{{ url_for('home') }}">Register</a>
+                    <a class="nav-item nav-link" href="{{ url_for('home') }}">Logout</a>
                 </div>
               </div>
             </div>
@@ -40,6 +39,21 @@
         </header>
         <div>
             <h1>Ripple</h1>
+        </div>
+        <div>
+            search for a location near you
+        </div>
+        <div>
+            search for a location farther away
+        </div>
+        <div>
+            search for locations
+        </div>
+        <div>
+            collections near you
+        </div>
+        <div>
+          your personal collections
         </div>
       </body>
   {% endif %}

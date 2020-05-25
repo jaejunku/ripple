@@ -33,10 +33,11 @@ transition: all 0.4s ease 0s;
 }
 
 .bg-steel {
-  background-color: #4d6d9a;
+  background-color: #303C6C;
 }
 
 .site-header .navbar-nav .nav-link {
+  font-family: 'Roboto', sans-serif;
   color: #ffffff;
 }
 
