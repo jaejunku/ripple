@@ -8,23 +8,11 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
       <!-- Link the main.css file to layout.html with url_for -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='collection_display.css') }}">
     <link rel="shortcut icon" href="#" />
       <title>main</title>
   </head>
   <body>
-  {% if login_authorized %}
-      <div>
-        <button type="button" class="btn btn-outline-danger">
-            <a href={{ url_for('logout') }}>Logout</a>
-        </button>
-      </div>
-  {% else %}
-      <div>
-        <button type="button" class="btn btn-outline-primary">
-            <a href={{ url_for('authorize') }}>Log in with Spotify</a>
-        </button>
-      </div>
-  {% endif %}
   {% block content %}{% endblock %}
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script type=text/javascript src="{{ url_for('static', filename='jquery.js') }}"></script>
