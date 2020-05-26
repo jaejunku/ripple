@@ -302,7 +302,7 @@ def add_song(place_id, address, song_uri):
                                    message=song_uri[14:],
                                    login_authorized=check_authorization())
         else:
-            album_picture = search_json['album']['images'][1]['url']
+            album_picture = search_json['album']['images'][0]['url']
             song_title = search_json['name']
             artist = search_json['artists'][0]['name']
             preview_url = search_json['preview_url']

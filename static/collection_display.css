@@ -1,74 +1,48 @@
-*{
-  margin: 0;
-  padding: 0;
-  font-family: "Roboto",sans-serif;
-  box-sizing: border-box;
-}
-
-.gallery-section{
-  width: 100%;
-  padding: 60px 0;
-  background: #f1f1f1;
-}
-
-.inner-width{
-  width: 100%;
-  max-width: 1200px;
-  margin: auto;
-  padding: 0 20px;
-}
-
-.gallery-section h1, h2, h3, p{
-    text-align: center;
-    font-family: "Roboto", sans-serif;
-    text-transform: uppercase;
+body {
+    font-family: Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.2em;
     color: #333;
+    font-weight: 400;
 }
 
-
-.border{
-  width: 180px;
-  height: 4px;
-  background: #333;
-  margin: 60px auto;
+.card {
+    position: relative;
+    box-shadow: 0 2px 4px 1px rgba(0,0,0,.18);
+    background-color: #fff;
+    padding: 16px;
+    margin: 0 0 24px;
 }
 
-.gallery-section .gallery{
-  display: flex;
-  flex-wrap: wrap-reverse;
-  justify-content: center;
+.card-playlist {
+    min-height: 350px;
 }
 
-.gallery-section .image{
-  flex: 25%;
-  overflow: hidden;
-  cursor: pointer;
+.card .actions-panel {
+    position: absolute;
+    top: 19px;
+    right: -32px;
+    background-color: rgba(0,0,0,.3);
+    border-radius: 0 5px 5px 0;
 }
 
-.gallery-section .image img{
-  width: 100%;
-  height: 100%;
-  transition: 0.4s;
+.playable {
+    position: relative;
+    cursor: pointer;
+    text-align: center;
+    display: inline-block;
+    margin-bottom: -5px;
 }
 
-.gallery-section .image:hover img{
-  transform: scale(1.4) rotate(15deg);
+.itemImg {
+    margin: 0 auto;
+    background-color: #bbb;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position-x: center;
 }
 
-@media screen and (max-width:960px) {
-  .gallery-section .image{
-    flex: 33.33%;
-  }
-}
-
-@media screen and (max-width:768px) {
-  .gallery-section .image{
-    flex: 50%;
-  }
-}
-
-@media screen and (max-width:480px) {
-  .gallery-section .image{
-    flex: 100%;
-  }
+.itemImg-md {
+    width: 96px;
+    height: 96px;
 }

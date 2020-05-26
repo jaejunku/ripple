@@ -3,19 +3,44 @@
 <a href={{ url_for('search_music', place_id=place_id, address=address) }}>Add Song</a>
 {% if in_db %}
     <h1>Viewing the Collection for</h1>
-    <div class="gallery-section">
-      <div class="inner-width">
-        <h1>{{ place_name }}</h1>
-        <p>at {{ address }}</p>
-        <div class="border"></div>
-        <div class="gallery">
-            {% for song, posts in posts_dict.items() %}
-                <audio id="{{ song.song_uri[14:] }}" src="{{ song.song_preview }}"></audio>
-                <img src="{{ song.album_picture }}" alt="" class="image" onmouseover="start('{{ song.song_uri[14:] }}')" onmouseout="stop('{{ song.song_uri[14:] }}')"
-                     onclick="playorpause('{{ song.song_uri[14:] }}')">
-            {% endfor %}
+{#    <div class="gallery-section">#}
+{#      <div class="inner-width">#}
+{#        <h1>{{ place_name }}</h1>#}
+{#        <p>at {{ address }}</p>#}
+{#        <div class="border"></div>#}
+{#        <div class="gallery">#}
+{#            {% for song, posts in posts_dict.items() %}#}
+{#                <audio id="{{ song.song_uri[14:] }}" src="{{ song.song_preview }}"></audio>#}
+{#                <img src="{{ song.album_picture }}" alt="" class="image" onmouseover="start('{{ song.song_uri[14:] }}')" onmouseout="stop('{{ song.song_uri[14:] }}')"#}
+{#                     onclick="playorpause('{{ song.song_uri[14:] }}')">#}
+{#            {% endfor %}#}
+{#        </div>#}
+{#      </div>#}
+{#    </div>#}
+    <div class="card card-playlist">
+    <div class="card-body">
+        <div class="playlistView">
+            <div class="header flex-container">
+            <div class="body">
+                <div class="item-grid">
+                    <div class="playable">
+                        <div class="itemImg itemImg-md" style="background-image: url('https://i.scdn.co/image/ab67616d00001e025c27a0495391c43d2411e638'); width: 90.375px; height: 90.375px;"></div>
+                        <div class="itemImg itemImg-md" style="background-image: url('https://i.scdn.co/image/ab67616d00001e025c27a0495391c43d2411e638'); width: 90.375px; height: 90.375px;"></div>
+                        <div class="itemImg itemImg-md" style="background-image: url('https://i.scdn.co/image/ab67616d00001e025c27a0495391c43d2411e638'); width: 90.375px; height: 90.375px;"></div>
+                        <div class="itemImg itemImg-md" style="background-image: url('https://i.scdn.co/image/ab67616d00001e025c27a0495391c43d2411e638'); width: 90.375px; height: 90.375px;"></div>
+                        <div class="itemImg itemImg-md" style="background-image: url('https://i.scdn.co/image/ab67616d00001e025c27a0495391c43d2411e638'); width: 90.375px; height: 90.375px;"></div>
+                        <div class="itemImg itemImg-md" style="background-image: url('https://i.scdn.co/image/ab67616d00001e025c27a0495391c43d2411e638'); width: 90.375px; height: 90.375px;"></div>
+                        <div class="itemImg itemImg-md" style="background-image: url('https://i.scdn.co/image/ab67616d00001e025c27a0495391c43d2411e638'); width: 90.375px; height: 90.375px;"></div>
+                        <div class="itemImg itemImg-md" style="background-image: url('https://i.scdn.co/image/ab67616d00001e025c27a0495391c43d2411e638'); width: 90.375px; height: 90.375px;"></div>
+                        <div class="itemImg itemImg-md" style="background-image: url('https://i.scdn.co/image/ab67616d00001e025c27a0495391c43d2411e638'); width: 90.375px; height: 90.375px;"></div>
+                        <div class="itemImg itemImg-md" style="background-image: url('https://i.scdn.co/image/ab67616d00001e025c27a0495391c43d2411e638'); width: 90.375px; height: 90.375px;"></div>
+                        <div class="itemImg itemImg-md" style="background-image: url('https://i.scdn.co/image/ab67616d00001e025c27a0495391c43d2411e638'); width: 90.375px; height: 90.375px;"></div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            </div>
         </div>
-      </div>
     </div>
 
 
