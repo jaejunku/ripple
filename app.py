@@ -148,48 +148,8 @@ def refresh_access_token():
     new_token_json = new_token_response.json()
     session['access_token'] = new_token_json.get("access_token")
 
-
-@app.route('/searchnear', methods=['GET', 'POST'])
-def near():
-    search_form = SearchForm()
-    if search_form.validate_on_submit():
-        return redirect(url_for('search_near', input_location=search_form.search.data))
-    return render_template('search.html', title='Search Near', form=search_form, search_type='Near',
-                           login_authorized=check_authorization())
-
-
-@app.route('/searchnear/<string:input_location>', methods=['GET', 'POST'])
-def search_near(input_location):
-    # Approximate user geolocation with ip address
-    coords = geocoder.ip('me').latlng
-    lat = str(coords[0])
-    lng = str(coords[1])
-    # Search query is the input from form
-    search_request = requests.get('https://maps.googleapis.com/maps/api/place/textsearch/json?key=' + google_api_key
-                                  + '&query=' + input_location.replace(" ", "+") + '&location=&' + lat + ',' + lng
-                                  + '&radius=5000')
-    # Now convert the response into Python dictionary
-    results = search_request.json()
-    # TODO if there is no match, allow search again or route to far-search
-    # If results is empty list (no results found), we want to ask again or give option to find somewhere far away
-    # Redirect to new route?
-    if not results['results']:
-        return render_template('place_search_results.html', title='Oops', error=True,
-                               login_authorized=check_authorization())
-    else:
-        # Create a list of locations, most relevant location comes first
-        location_list = []
-        for result in results['results']:
-            location_dict = {'formatted_address': result['formatted_address'],
-                             'latitude': result['geometry']['location']['lat'],
-                             'longitude': result['geometry']['location']['lng'], 'name': result['name'],
-                             'place_id': result['place_id']}
-            location_list.append(location_dict)
-    return render_template('place_search_results.html', title='Search Results', location_list=location_list,
-                           login_authorized=check_authorization())
-
-@app.route('/searchfar', methods=['GET', 'POST'])
-def far():
+@app.route('/search', methods=['GET', 'POST'])
+def searchform():
     search_form = SearchForm()
     if search_form.validate_on_submit():
         return redirect(url_for('search_far', input_location=search_form.search.data))
@@ -197,8 +157,8 @@ def far():
                            login_authorized=check_authorization())
 
 
-@app.route('/searchfar/<string:input_location>', methods=['GET', 'POST'])
-def search_far(input_location):
+@app.route('/search/<string:input_location>', methods=['GET', 'POST'])
+def search(input_location):
     # Search query is the input from form
     search_request = requests.get('https://maps.googleapis.com/maps/api/place/textsearch/json?key=' + google_api_key
                                   + '&query=' + input_location.replace(" ", "+"))
