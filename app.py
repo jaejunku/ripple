@@ -152,8 +152,8 @@ def refresh_access_token():
 def search_location():
     search_form = SearchForm()
     if search_form.validate_on_submit():
-        return redirect(url_for('search_far', input_location=search_form.search.data))
-    return render_template('search.html', title='Search Far', form=search_form, search_type='Far',
+        return redirect(url_for('search_location_call', input_location=search_form.search.data))
+    return render_template('search.html', title='Search Far', form=search_form,
                            login_authorized=check_authorization())
 
 

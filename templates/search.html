@@ -1,15 +1,18 @@
 {% extends 'layout.html' %}
 {% block content %}
-<div class="content-section">
-    <form method="POST" action="">
-        {{ form.hidden_tag() }}
-            <legend class="border-bottom mb-4">Search {{ search_type }}</legend>
-            <div class="search_form">
-                {{ form.search.label(class="form-control-label") }}
-                {{ form.search(class="search-form") }}
-        <div class="submit">
-            {{ form.submit(class="btn btn-outline-info") }}
-        </div>
-    </form>
+<div style="background-color: #86b3d1">
+    <div class="content">
+        <form method="POST" action="" class="search-field">
+            {{ form.hidden_tag() }}
+                <div style="font-size: 1em;">Search for a location</div>
+                <div class="search_form">
+                    {{ form.search(class="search-form") }}
+                </div>
+                <div class="submit">
+                    {{ form.submit(class="btn btn-outline-info") }}
+                </div>
+        </form>
+    </div>
 </div>
+
 {% endblock content %}

@@ -1,3 +1,5 @@
+body > div { display: inline-block; }
+
 .hero-image{
   background-image: url("main_background.jpg");
   background-size: cover;
@@ -35,17 +37,32 @@
   max-width: 35%;
 }
 
-.main-left{
-  vertical-align: top;
-  margin-left: 0;
-  position: relative;
-  background-color: #85dcba;
-  text-align: left;
-  width: 100%;
-  float: top;
-  left: 50%;
-  transform: translate(-50%);
+.collections-title{
+  font-family: Roboto sans-serif;
+  font-size: 3em;
+}
 
+.search-field{
+  text-align: center;
+  font-size: 4em;
+}
+
+.main-left{
+  margin: 0;
+  position: relative;
+  background-color: #79b5d6;
+  text-align: center;
+  width: 50%;
+  float: left;
+}
+
+.main-right{
+  margin: 0;
+  position: relative;
+  background-color: #f9b2e4;
+  text-align: center;
+  width: 50%;
+  float: right;
 }
 
 .main-search{
@@ -103,11 +120,6 @@ background: #edb5bf;
 border-color: #edb5bf !important;
 transition: all 0.4s ease 0s;
 cursor: pointer;
-}
-
-a{
-  color: black;
-  text-decoration: none;
 }
 
 .logout-button{
