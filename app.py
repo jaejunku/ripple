@@ -149,7 +149,7 @@ def refresh_access_token():
     session['access_token'] = new_token_json.get("access_token")
 
 @app.route('/search', methods=['GET', 'POST'])
-def searchform():
+def search_location():
     search_form = SearchForm()
     if search_form.validate_on_submit():
         return redirect(url_for('search_far', input_location=search_form.search.data))
@@ -158,7 +158,7 @@ def searchform():
 
 
 @app.route('/search/<string:input_location>', methods=['GET', 'POST'])
-def search(input_location):
+def search_location_call(input_location):
     # Search query is the input from form
     search_request = requests.get('https://maps.googleapis.com/maps/api/place/textsearch/json?key=' + google_api_key
                                   + '&query=' + input_location.replace(" ", "+"))

@@ -20,17 +20,19 @@
           </div>
       </body>
   {% else %}
-      <body>
+      <body style="background-color: #c5ffff">
         <div class="main-search hero-image">
+            <a href="{{ url_for('logout') }}" class="logout-button">Log Out</a>
             <div class="welcome-text">
                 <div class="title">Welcome to Ripple.</div>
                 <div class="content">Lorem ipsum dolor sit amet, consectetur adipisicing elit. A aliquam commodi doloremque esse itaque iusto, labore laborum maxime odio, quidem quos, repellat rerum? Ab, asperiores aspernatur assumenda atque distinctio dolor dolore eveniet facilis, id illo ipsa ipsam minus nemo nobis porro quam quia quibusdam quis ratione rerum soluta suscipit temporibus vel vitae voluptate. Accusamus dignissimos ea esse expedita itaque mollitia nobis, numquam odio, quaerat qui vel voluptatibus?</div>
-                <button class="search_button">Search for a location</button>
+                <a href="{{ url_for('search_location') }}"><button class="search_button" >Search for a location</button></a>
                 <button class="search_button">Search for a song</button>
             </div>
         </div>
-        <div class="middle-main">
-            collections near you
+        <div class="main-left">
+            <div class="title">Collections Near Me</div>
+            <div class=""></div>
         <div>
         </div>
         <div>
