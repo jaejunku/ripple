@@ -7,7 +7,6 @@ from flask_apscheduler import APScheduler
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField
 
-
 # TODO let users add pictures to posts
 # TODO let users (optionally) specify more specific locations when adding post
 # TODO add integration for Spotify song preview when hovering over album picture
@@ -23,6 +22,8 @@ db = SQLAlchemy(app)
 # Database classes: A collection can have many songs, a song can have many posts
 class Collection(db.Model):
     id = db.Column(db.String, primary_key=True)
+    lat = db.Column(db.Float)
+    long = db.Column(db.Float)
     songs = db.relationship('Song', backref='collection', lazy=True)
     posts = db.relationship('Post', backref='collection', lazy=True)
 
@@ -62,10 +63,12 @@ class SearchForm(FlaskForm):
     search = StringField()
     submit = SubmitField('Search')
 
+
 class PostForm(FlaskForm):
     is_anonymous = BooleanField('Anonymous')
     content = TextAreaField('Memory')
     submit = SubmitField('Post')
+
 
 # TODO replace with dummy key
 
@@ -148,6 +151,7 @@ def refresh_access_token():
     new_token_json = new_token_response.json()
     session['access_token'] = new_token_json.get("access_token")
 
+
 @app.route('/search', methods=['GET', 'POST'])
 def search_location():
     search_form = SearchForm()
@@ -181,8 +185,6 @@ def search_location_call(input_location):
             location_list.append(location_dict)
     return render_template('place_search_results.html', title='Search Results', location_list=location_list,
                            login_authorized=check_authorization())
-
-
 
 
 @app.route('/collection/<string:place_id>/address/<string:address>', methods=['GET', 'POST'])
@@ -251,7 +253,13 @@ def add_song(place_id, address, song_uri):
     post_form = PostForm()
     if post_form.validate_on_submit():
         if Collection.query.filter_by(id=place_id).first() is None:
-            collection = Collection(id=place_id)
+            search_request = requests.get(
+                'https://maps.googleapis.com/maps/api/geocode/json?key=' + google_api_key + '&address=' +
+                address.replace(" ", "+"))
+            search_json = search_request.json()
+            lat = search_json['results']['geometry']['location']['lat']
+            lng = search_json['results']['geometry']['location']['lng']
+            collection = Collection(id=place_id, lat=lat, long=lng)
             db.session.add(collection)
             db.session.commit()
         search_request = requests.get('https://api.spotify.com/v1/tracks/' + str(song_uri[14:]),
@@ -283,6 +291,7 @@ def add_song(place_id, address, song_uri):
             return redirect(url_for('location', place_id=place_id, address=address, author_id=post_author_id,
                                     post_author_name=post_author_name))
     return render_template('post.html', form=post_form)
+
 
 # @app.route('/home/<str:user_id>')
 # @app.route('/home/<str:user_id>')
