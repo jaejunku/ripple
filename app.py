@@ -88,14 +88,9 @@ def home():
         coords = geocoder.ip('me').latlng
         lat = str(coords[0])
         lng = str(coords[1])
-        nearby_collections = Collection.query.filter(
-            func.acos(
-                func.sin(func.radians(lat)) * func.sin(func.radians(Collection.lat)) + func.cos(
-                    func.radians(lat)) * func.cos(func.radians(Collection.lat)) * func.cos(
-                    func.radians(Collection.long) - (func.radians(lng)))) * 6371 <= 100)
-
-
-
+        nearby_collections = Collection.query.order_by(
+            ((lat - Collection.lat) * (lat - Collection.lat) +
+             (lng - Collection.long) * (lng - Collection.long))).limit(5).all()
         # Collection.query.filter(
         #     (func.degrees(
         #         func.acos(
@@ -107,7 +102,7 @@ def home():
 
         return render_template('home.html',
                                display_name=user_json.get("display_name"),
-                               nearby_collections=type(nearby_collections),
+                               nearby_collections=nearby_collections,
                                id=user_json.get("id"),
                                email=user_json.get("email"),
                                images=user_json.get("images"),
