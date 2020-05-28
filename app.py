@@ -5,6 +5,7 @@ from flask import Flask, session, render_template, redirect, url_for, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_apscheduler import APScheduler
 from flask_wtf import FlaskForm
+from sqlalchemy import func
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField
 
 # TODO let users add pictures to posts
@@ -23,6 +24,7 @@ db = SQLAlchemy(app)
 class Collection(db.Model):
     id = db.Column(db.String, primary_key=True)
     lat = db.Column(db.Float)
+    address = db.Column(db.String, nullable=False)
     long = db.Column(db.Float)
     songs = db.relationship('Song', backref='collection', lazy=True)
     posts = db.relationship('Post', backref='collection', lazy=True)
@@ -81,8 +83,31 @@ def home():
         user_json = user_profile.json()
         session['current_user_name'] = user_json.get("display_name")
         session['current_user_id'] = user_json.get("id")
+        # Calculate collections near user
+        # Get rough estimate of user's location
+        coords = geocoder.ip('me').latlng
+        lat = str(coords[0])
+        lng = str(coords[1])
+        nearby_collections = Collection.query.filter(
+            func.acos(
+                func.sin(func.radians(lat)) * func.sin(func.radians(Collection.lat)) + func.cos(
+                    func.radians(lat)) * func.cos(func.radians(Collection.lat)) * func.cos(
+                    func.radians(Collection.long) - (func.radians(lng)))) * 6371 <= 100)
+
+
+
+        # Collection.query.filter(
+        #     (func.degrees(
+        #         func.acos(
+        #             func.sin(func.radians(lat)) * func.sin(func.radians(Collection.lat)) +
+        #             func.cos(func.radians(lat)) * func.cos(func.radians(Collection.lat)) *
+        #             func.cos(func.radians(lng - Collection.long))
+        #         )
+        #     ) * 60 * 1.1515 * 1.609344) <= distance)
+
         return render_template('home.html',
                                display_name=user_json.get("display_name"),
+                               nearby_collections=type(nearby_collections),
                                id=user_json.get("id"),
                                email=user_json.get("email"),
                                images=user_json.get("images"),
@@ -257,9 +282,9 @@ def add_song(place_id, address, song_uri):
                 'https://maps.googleapis.com/maps/api/geocode/json?key=' + google_api_key + '&address=' +
                 address.replace(" ", "+"))
             search_json = search_request.json()
-            lat = search_json['results']['geometry']['location']['lat']
-            lng = search_json['results']['geometry']['location']['lng']
-            collection = Collection(id=place_id, lat=lat, long=lng)
+            lat = search_json['results'][0]['geometry']['location']['lat']
+            lng = search_json['results'][0]['geometry']['location']['lng']
+            collection = Collection(id=place_id, lat=lat, long=lng, address=address)
             db.session.add(collection)
             db.session.commit()
         search_request = requests.get('https://api.spotify.com/v1/tracks/' + str(song_uri[14:]),
@@ -270,7 +295,7 @@ def add_song(place_id, address, song_uri):
                                    message=song_uri[14:],
                                    login_authorized=check_authorization())
         else:
-            album_picture = search_json['album']['images'][0]['url']
+            album_picture = search_json['album']['images'][1]['url']
             song_title = search_json['name']
             artist = search_json['artists'][0]['name']
             preview_url = search_json['preview_url']

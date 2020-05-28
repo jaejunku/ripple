@@ -1,48 +1,105 @@
 body {
+    background-color: #86b3d1;
     font-family: Roboto, sans-serif;
-    font-size: 16px;
-    line-height: 1.2em;
-    color: #333;
-    font-weight: 400;
 }
 
-.card {
-    position: relative;
-    box-shadow: 0 2px 4px 1px rgba(0,0,0,.18);
-    background-color: #fff;
-    padding: 16px;
-    margin: 0 0 24px;
-}
-
-.card-playlist {
-    min-height: 350px;
-}
-
-.card .actions-panel {
-    position: absolute;
-    top: 19px;
-    right: -32px;
-    background-color: rgba(0,0,0,.3);
-    border-radius: 0 5px 5px 0;
-}
-
-.playable {
-    position: relative;
-    cursor: pointer;
+.viewing{
+    font-size: 2em;
     text-align: center;
+    text-transform: uppercase;
+}
+
+.name{
+    font-size: 3em;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.address{
+    font-size: 1em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.album{
+    margin: 0.5em;
+}
+
+.image{
     display: inline-block;
-    margin-bottom: -5px;
+  margin-bottom: 8px;
+  margin-right: 8px;
+  text-decoration: none;
+  color: black;
+    cursor: pointer;
 }
 
-.itemImg {
-    margin: 0 auto;
-    background-color: #bbb;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position-x: center;
+.image:nth-of-type(2n){
+    margin-right: 0;
 }
 
-.itemImg-md {
-    width: 96px;
-    height: 96px;
+.image:hover img {
+  transform: scale(1.15);
+}
+
+@media screen and (min-width: 50em) {
+  a {
+    width: calc(25% - 6px);
+  }
+
+  a:nth-of-type(2n) {
+    margin-right: 8px;
+  }
+
+  a:nth-of-type(4n) {
+    margin-right: 0;
+  }
+}
+
+img {
+  border: none;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  background: #ccc;
+  transition: transform .2s ease-in-out;
+}
+
+.album{
+  margin: 0;
+  overflow: hidden;
+}
+
+.gallery{
+    margin-top: 1em;
+    background-color: #86b3d1;
+      display: flex;
+  flex-wrap: wrap;
+}
+
+.main{
+    background-color: #86b3d1;
+}
+
+.add-button {
+    color: black !important;
+    text-transform: uppercase;
+    font-size: 3em;
+    font-weight: bold;
+    text-decoration: none;
+    background: #86b3d1;
+    width: 300px;
+    height: 300px;
+    display: inline-block;
+    border: thick solid black;
+    transition: all 0.4s ease 0s;
+}
+
+.add-button:hover {
+    color: black !important;
+    background: #5cdb95;
+    border-color: black !important;
+    transition: all 0.4s ease 0s;
+    cursor: pointer;
 }
