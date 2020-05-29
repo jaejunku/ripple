@@ -10,6 +10,7 @@ from wtforms import StringField, SubmitField, TextAreaField, BooleanField
 
 # TODO modal with post popup when clickinng post + picture of album + link to listen to song on Spotify
 # TODO Add home/logout button to pages
+# TODO frontend work for places/music display 
 # TODO homepage collections near you/your personal collections
 # TODO let users add pictures to posts
 # TODO let users (optionally) specify more specific locations when adding post
