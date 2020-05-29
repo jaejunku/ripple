@@ -32,7 +32,11 @@
         </div>
         <div class="main-left">
             <div class="collections-title">Collections Near You</div>
-            <div>{% for collection in nearby_collections %} {{ collection.address }} {% endfor %}</div>
+            <div>
+                {% for collection in nearby_collections %}
+                <div>{{ collection.name }} </div>
+                {% endfor %}
+            </div>
         </div>
         <div class="main-right">
             <div class="collections-title">Your Personal Collections</div>

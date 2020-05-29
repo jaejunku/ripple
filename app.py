@@ -25,6 +25,7 @@ class Collection(db.Model):
     id = db.Column(db.String, primary_key=True)
     lat = db.Column(db.Float)
     address = db.Column(db.String, nullable=False)
+    name = db.Column(db.String)
     long = db.Column(db.Float)
     songs = db.relationship('Song', backref='collection', lazy=True)
     posts = db.relationship('Post', backref='collection', lazy=True)
@@ -177,7 +178,7 @@ def search_location():
     search_form = SearchForm()
     if search_form.validate_on_submit():
         return redirect(url_for('search_location_call', input_location=search_form.search.data))
-    return render_template('search.html', title='Search Far', form=search_form,
+    return render_template('search.html', form=search_form, searchtype="LOCATION",
                            login_authorized=check_authorization())
 
 
@@ -210,7 +211,7 @@ def search_location_call(input_location):
 @app.route('/collection/<string:place_id>/address/<string:address>', methods=['GET', 'POST'])
 def location(place_id, address):
     search_request = requests.get('https://maps.googleapis.com/maps/api/place/details/json?key=' + google_api_key
-                                  + '&place_id=' + str(place_id))
+                                  + '&place_id=' + str(place_id) + '&fields=name')
     # Now convert the response into Python dictionary
     results = search_request.json()
     place_name = results['result']['name']
@@ -236,7 +237,7 @@ def search_music(place_id, address):
         return redirect(
             url_for('music_search_results', input_music=search_form.search.data, place_id=place_id, address=address))
     return render_template('search.html', title='Search Music', form=search_form, search_type='Music',
-                           login_authorized=check_authorization())
+                           searchtype = "SONG", login_authorized=check_authorization())
 
 
 @app.route('/collection/<string:place_id>/address/<string:address>/musicsearchresults/<string:input_music>')
@@ -274,26 +275,27 @@ def add_song(place_id, address, song_uri):
     if post_form.validate_on_submit():
         if Collection.query.filter_by(id=place_id).first() is None:
             search_request = requests.get(
-                'https://maps.googleapis.com/maps/api/geocode/json?key=' + google_api_key + '&address=' +
-                address.replace(" ", "+"))
+                'https://maps.googleapis.com/maps/api/place/details/json?key=' + google_api_key
+                + '&place_id=' + str(place_id) + '&fields=name,geometry')
             search_json = search_request.json()
-            lat = search_json['results'][0]['geometry']['location']['lat']
-            lng = search_json['results'][0]['geometry']['location']['lng']
-            collection = Collection(id=place_id, lat=lat, long=lng, address=address)
+            lat = search_json['result']['geometry']['location']['lat']
+            lng = search_json['result']['geometry']['location']['lng']
+            name = search_json['result']['name']
+            collection = Collection(id=place_id, lat=lat, long=lng, address=address, name=name)
             db.session.add(collection)
             db.session.commit()
-        search_request = requests.get('https://api.spotify.com/v1/tracks/' + str(song_uri[14:]),
-                                      headers={'Authorization': 'Bearer ' + session['access_token']})
-        search_json = search_request.json()
-        if 'error' in search_json:
-            return render_template('music_search_results.html', error=True, search_json=search_json,
+        music_search_request = requests.get('https://api.spotify.com/v1/tracks/' + str(song_uri[14:]),
+                                            headers={'Authorization': 'Bearer ' + session['access_token']})
+        music_search_json = music_search_request.json()
+        if 'error' in music_search_json:
+            return render_template('music_search_results.html', error=True, search_json=music_search_json,
                                    message=song_uri[14:],
                                    login_authorized=check_authorization())
         else:
-            album_picture = search_json['album']['images'][1]['url']
-            song_title = search_json['name']
-            artist = search_json['artists'][0]['name']
-            preview_url = search_json['preview_url']
+            album_picture = music_search_json['album']['images'][1]['url']
+            song_title = music_search_json['name']
+            artist = music_search_json['artists'][0]['name']
+            preview_url = music_search_json['preview_url']
             song = Song(song_uri=song_uri, song_title=song_title, album_picture=album_picture, collection_id=place_id,
                         artist=artist, song_preview=preview_url)
             db.session.add(song)

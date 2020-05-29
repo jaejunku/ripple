@@ -26,6 +26,7 @@ body > div { display: inline-block; }
 
 .content{
   color: black;
+
   font-family: Roboto, sans-serif;
   font-size: 1em;
   margin: 1em;
@@ -40,11 +41,6 @@ body > div { display: inline-block; }
 .collections-title{
   font-family: Roboto sans-serif;
   font-size: 3em;
-}
-
-.search-field{
-  text-align: center;
-  font-size: 4em;
 }
 
 .main-left{
@@ -137,3 +133,4 @@ cursor: pointer;
   color: white !important;
   cursor: pointer;
 }
+
