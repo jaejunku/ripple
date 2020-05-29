@@ -8,9 +8,11 @@ from flask_wtf import FlaskForm
 from sqlalchemy import func
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField
 
+# TODO modal with post popup when clickinng post + picture of album + link to listen to song on Spotify
+# TODO Add home/logout button to pages
+# TODO homepage collections near you/your personal collections
 # TODO let users add pictures to posts
 # TODO let users (optionally) specify more specific locations when adding post
-# TODO add integration for Spotify song preview when hovering over album picture
 # TODO frontend design
 
 app = Flask(__name__)
