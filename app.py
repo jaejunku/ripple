@@ -9,6 +9,7 @@ from sqlalchemy import func
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField
 
 # TODO modal with post popup when clickinng post + picture of album + link to listen to song on Spotify
+# TODO anchor tag for collections near you/personal collections and separate page?
 # TODO Add home/logout button to pages
 # TODO frontend work for places/music display 
 # TODO homepage collections near you/your personal collections

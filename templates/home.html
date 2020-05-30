@@ -34,7 +34,7 @@
             <div class="collections-title">Collections Near You</div>
             <div>
                 {% for collection in nearby_collections %}
-                <div>{{ collection.name }} </div>
+                <div class="collections-list"><a style="color: black;" href={{ url_for('location', place_id=collection.id, address=collection.address) }}>{{ collection.name }}</a></div>
                 {% endfor %}
             </div>
         </div>

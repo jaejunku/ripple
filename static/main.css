@@ -39,8 +39,16 @@ body > div { display: inline-block; }
 }
 
 .collections-title{
-  font-family: Roboto sans-serif;
+  font-family: Roboto, sans-serif;
   font-size: 3em;
+  margin-bottom: 0.5em;
+}
+
+.collections-list{
+  font-family: Roboto, sans-serif;
+  font-size: 1em;
+  font-weight: lighter;
+  margin: 1em;
 }
 
 .main-left{
