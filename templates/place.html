@@ -27,17 +27,15 @@
                       <!-- Modal content -->
                       <div class="modal-content">
                         <span class="close" onclick="closemodal('{{ post.post_id }}')">&times;</span>
-                        <img style="display:block; margin:auto;" src="{{ song.album_picture }}" alt="">
+                        <img style="display:block; margin: 0 auto 1em;" src="{{ song.album_picture }}" alt="">
                         <div class="post-text">
                           Lorem ipsum dolor sit amet, consectetur adipisicing elit. Temporibus quo illum facere. Nam delectus tempora natus placeat debitis reiciendis, nihil facere quos recusandae quo odio perferendis? Officia vero vel aliquid.
                         </div>
-                        <div>
-                          Submitted By me
+                        <div style="margin-top: 1em; margin-bottom: 1em;">
+                          Submitted by {{ post.author_name }}
+                        <div class="button_cont" align="center">
+                            <a class="spotify_button" href="{{ 'https://open.spotify.com/track/' + post.song_id[14:] }}" target="_blank">Listen to the full track on Spotify</a>
                         </div>
-                        <div>
-                          <button>
-                            Listen to the full song on Spotify
-                          </button>
                         </div>
                       </div>
                     </div>

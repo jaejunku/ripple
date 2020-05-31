@@ -149,3 +149,24 @@ img {
     font-weight: lighter;
     font-size: 1em;
 }
+
+.spotify_button {
+color: #fff !important;
+margin-top: 1em;
+text-transform: uppercase;
+text-decoration: none;
+background: #1db954;
+padding: 12px;
+border-radius: 40px;
+display: inline-block;
+border: none;
+transition: all 0.4s ease 0s;
+}
+
+.spotify_button:hover {
+color: #ffffff !important;
+background: #edb5bf;
+border-color: #edb5bf !important;
+transition: all 0.4s ease 0s;
+cursor: pointer;
+}
