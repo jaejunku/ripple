@@ -93,6 +93,8 @@ img {
 .modal-main{
     display: none; /* Hidden by default */
   position: fixed; /* Stay in place */
+  top: 0;
+  margin: 0;
   z-index: 1; /* Sit on top */
   width: 100%; /* Full width */
   height: 100%; /* Full height */
@@ -106,7 +108,8 @@ img {
 .modal-content {
   position: relative;
   top: 0;
-  margin: 15% auto; /* 15% from the top and centered */
+  margin: 10% auto; /* 15% from the top and centered */
+  text-align: center;
   padding: 0;
   border: 1px solid #888;
   width: 80%;
@@ -137,4 +140,12 @@ img {
 @keyframes animatetop {
   from {top: -300px; opacity: 0}
   to {top: 0; opacity: 1}
+}
+
+.post-text{
+    font-family: Roboto, sans-serif;
+    width: 70%;
+    margin: 0 auto;
+    font-weight: lighter;
+    font-size: 1em;
 }
