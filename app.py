@@ -96,14 +96,9 @@ def home():
         nearby_collections = Collection.query.order_by(
             ((lat - Collection.lat) * (lat - Collection.lat) +
              (lng - Collection.long) * (lng - Collection.long))).limit(5).all()
-        # Collection.query.filter(
-        #     (func.degrees(
-        #         func.acos(
-        #             func.sin(func.radians(lat)) * func.sin(func.radians(Collection.lat)) +
-        #             func.cos(func.radians(lat)) * func.cos(func.radians(Collection.lat)) *
-        #             func.cos(func.radians(lng - Collection.long))
-        #         )
-        #     ) * 60 * 1.1515 * 1.609344) <= distance)
+        # Query user's personal collections, when rendering in template do if statements to avoid repeat collections
+        user_posts = Post.query.filter_by(author_id=session['current_user_id']).all()
+
 
         return render_template('home.html',
                                display_name=user_json.get("display_name"),
@@ -305,7 +300,7 @@ def add_song(place_id, address, song_uri):
             db.session.add(song)
             db.session.commit()
             if post_form.is_anonymous.data:
-                post_author_id = 'Anonymous'
+                post_author_id = session['current_user_id']
                 post_author_name = 'Anonymous'
             else:
                 post_author_id = session['current_user_id']

@@ -4,8 +4,6 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-      <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
       <!-- Link the main.css file to layout.html with url_for -->
     <link rel="stylesheet" href="{{ url_for('static', filename='collection_display.css') }}">
     <link rel="shortcut icon" href="#" />
@@ -21,13 +19,36 @@
                     <div class="address">at {{ address }}</div>
                 </div>
             </div>
-            <div class="gallery">
+             <div class="gallery">
                 {% for song, posts in posts_dict.items() %}
+                    {% for post in posts %}
+                    <!-- The Modal -->
+                    <div id="{{ post.post_id }}" class="modal-main">
+                      <!-- Modal content -->
+                      <div class="modal-content">
+                        <span class="close" onclick="closemodal('{{ post.post_id }}')">&times;</span>
+                        <div style="margin: 5em 5em; float: left;">
+                            <img src="{{ song.album_picture }}" alt="">
+                        </div>
+                        <div style="margin: 5em 5em; float: right;">
+                          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Temporibus quo illum facere. Nam delectus tempora natus placeat debitis reiciendis, nihil facere quos recusandae quo odio perferendis? Officia vero vel aliquid.
+                        </div>
+                        <div>
+                          Submitted By me
+                        </div>
+                        <div>
+                          <button>
+                            Listen to the full song on Spotify
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                     <div class="album">
                         <audio id="{{ song.song_uri[14:] }}" src="{{ song.song_preview }}"></audio>
                         <img src="{{ song.album_picture }}" class="image" alt="" onmouseover="start('{{ song.song_uri[14:] }}')" onmouseout="stop('{{ song.song_uri[14:] }}')"
-                         onclick="playorpause('{{ song.song_uri[14:] }}')">
+                         onclick="displaymodal('{{ post.post_id }}')">
                     </div>
+                {% endfor %}
                 {% endfor %}
                 <div class="album">
                     <a href="{{ url_for('search_music', place_id=place_id, address=address) }}"><button class="add-button" >Add a song</button></a>
@@ -36,21 +57,29 @@
         </div>
         <script>
             function start(id) {
-                var audio = document.getElementById(id);
+                const audio = document.getElementById(id);
                 audio.play();
             }
             function stop(id) {
-                var audio = document.getElementById(id);
+                const audio = document.getElementById(id);
                 audio.pause();
                 audio.currentTime=0;
             }
             function playorpause(id) {
-                var audio = document.getElementById(id);
+                const audio = document.getElementById(id);
                 if (audio.duration > 0 && !audio.paused) {
                     audio.pause();
                 } else {
                     audio.play();
                 }
+            }
+            function displaymodal(modal_id) {
+                const modal = document.getElementById(modal_id);
+                modal.style.display = "block";
+            }
+            function closemodal(modal_id) {
+                const modal = document.getElementById(modal_id);
+                modal.style.display = "none";
             }
         </script>
     {% else %}
