@@ -24,8 +24,10 @@
                     {% for track in tracks_list %}
                         <div class="album">
                         <audio id="{{ track.track_uri[14:] }}" src="{{ track.preview_url }}"></audio>
+                        <a href="{{ url_for('add_song', place_id=place_id, song_uri=track.track_uri, address=address) }}">
                         <img src="{{ track.album_images.1.url }}" class="image" alt="" onmouseover="start('{{ track.track_uri[14:] }}')" onmouseout="stop('{{ track.track_uri[14:] }}')"
                          onclick= "playorpause('{{ track.track_uri[14:] }}')">
+                        </a>
                         <div style="text-align: center;  font-weight: bold">
                             <a style="color: black; cursor: pointer" href="{{ url_for('add_song', place_id=place_id, song_uri=track.track_uri, address=address) }}">
                             {{ track.song }}
