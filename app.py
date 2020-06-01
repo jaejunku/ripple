@@ -7,13 +7,11 @@ from flask_apscheduler import APScheduler
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField
 
-# TODO frontend work for add if no collection exists
 # TODO make post page pretty
 # TODO anchor tag for collections near you/personal collections and separate page?
 # TODO Add home/logout button to pages
 # TODO frontend work for places/music display 
 # TODO homepage collections near you/your personal collections
-# TODO let users (optionally) specify more specific locations when adding post
 # TODO frontend design
 
 app = Flask(__name__)

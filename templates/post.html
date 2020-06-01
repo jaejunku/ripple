@@ -1,34 +1,49 @@
-{% extends "layout.html" %}
-{% block content %}
-<div class="content-section">
-    <form method="POST" action="">
-        {{ form.hidden_tag() }}
-        <fieldset class="form-group">
-            <div class="form-group">
-                {{ form.post_title.label(class="form-control-label") }}
-                {{ form.post_title }}
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+      <!-- Link the main.css file to layout.html with url_for -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='search.css') }}">
+    <link rel="shortcut icon" href="#" />
+      <title>Create a Post</title>
+  </head>
+  <body>
+    <div class="search-parent-wrapper">
+        <div class="search-wrapper">
+        <div style="margin-top: 3em; font-weight: bold; text-transform: uppercase; font-family: Roboto, sans-serif; font-size: 2em;">Create a Post</div>
+        <form method="POST" action="" class="post-parent-wrapper">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group" style="margin-top: 3em;">
+                <div class="form-group">
+                    <div style="text-transform: capitalize; font-weight: bold; font-size: 1em; font-family: Roboto, sans-serif; margin-bottom: 1em;">Post Title</div>
+                    {{ form.post_title }}
+                </div>
+                <div class="form-group" style="width: 50%;">
+                    <div style="text-transform: capitalize; font-weight: bold; font-size: 1em; font-family: Roboto, sans-serif; margin-top: 1em;">Memory</div>
+                    {% if form.content.errors %}
+                         {{ form.content(class="form-control form-control-lg is-invalid") }}
+                         <div class="invalid-feedback">
+                            {% for error in form.content.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                         </div>
+                     {% else %}
+                         {{ form.content(class="form-control form-control-lg") }}
+                     {% endif %}
+                </div>
+            </fieldset>
+            <div style="font-weight: normal; margin-bottom: 1em">
+                Submit anonymously
+                {{ form.is_anonymous() }}
             </div>
-            <div class="form-group">
-                {{ form.content.label(class="form-control-label") }}
-                {% if form.content.errors %}
-                     {{ form.content(class="form-control form-control-lg is-invalid") }}
-                     <div class="invalid-feedback">
-                        {% for error in form.content.errors %}
-                            <span>{{ error }}</span>
-                        {% endfor %}
-                     </div>
-                 {% else %}
-                     {{ form.content(class="form-control form-control-lg") }}
-                 {% endif %}
+            <div class="submit">
+                {{ form.submit(class="post-button") }}
             </div>
-        </fieldset>
-        <div class="form-group">
-            Submit anonymously
-            {{ form.is_anonymous() }}
+        </form>
         </div>
-        <div class="form-group">
-            {{ form.submit(class="btn btn-outline-info") }}
-        </div>
-    </form>
-</div>
-{% endblock content %}
+    </div>
+</body>
