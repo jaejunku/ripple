@@ -5,6 +5,10 @@
         {{ form.hidden_tag() }}
         <fieldset class="form-group">
             <div class="form-group">
+                {{ form.post_title.label(class="form-control-label") }}
+                {{ form.post_title }}
+            </div>
+            <div class="form-group">
                 {{ form.content.label(class="form-control-label") }}
                 {% if form.content.errors %}
                      {{ form.content(class="form-control form-control-lg is-invalid") }}

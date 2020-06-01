@@ -142,6 +142,16 @@ img {
   to {top: 0; opacity: 1}
 }
 
+
+.post-title{
+    font-family: Roboto, sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 2em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
 .post-text{
     font-family: Roboto, sans-serif;
     width: 70%;

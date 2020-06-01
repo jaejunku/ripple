@@ -5,15 +5,15 @@ from flask import Flask, session, render_template, redirect, url_for, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_apscheduler import APScheduler
 from flask_wtf import FlaskForm
-from sqlalchemy import func
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField
 
-# TODO modal with post popup when clickinng post + picture of album + link to listen to song on Spotify
+# TODO change background of search results page for location
+# TODO revamp search results for music
+# TODO frontend work for add if no collection exists
 # TODO anchor tag for collections near you/personal collections and separate page?
 # TODO Add home/logout button to pages
 # TODO frontend work for places/music display 
 # TODO homepage collections near you/your personal collections
-# TODO let users add pictures to posts
 # TODO let users (optionally) specify more specific locations when adding post
 # TODO frontend design
 
@@ -55,6 +55,7 @@ class Post(db.Model):
     post_id = db.Column(db.Integer, primary_key=True)
     # post_picture = db.Column(db.String)
     post_content = db.Column(db.Text)
+    post_title = db.Column(db.String)
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     song_id = db.Column(db.String, db.ForeignKey('song.song_uri'), nullable=False)
     collection_id = db.Column(db.String, db.ForeignKey('collection.id'), nullable=False)
@@ -75,6 +76,7 @@ class PostForm(FlaskForm):
     is_anonymous = BooleanField('Anonymous')
     content = TextAreaField('Memory')
     submit = SubmitField('Post')
+    post_title = StringField()
 
 
 # TODO replace with dummy key
@@ -305,7 +307,7 @@ def add_song(place_id, address, song_uri):
             else:
                 post_author_id = session['current_user_id']
                 post_author_name = session['current_user_name']
-            post = Post(post_content=post_form.content.data, song_id=song_uri, collection_id=place_id,
+            post = Post(post_content=post_form.content.data, post_title=post_form.post_title.data, song_id=song_uri, collection_id=place_id,
                         author_id=post_author_id, author_name=post_author_name)
             db.session.add(post)
             db.session.commit()

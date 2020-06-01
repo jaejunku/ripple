@@ -11,7 +11,7 @@ table {
 }
 
 th, td {
-    border: 1px solid #2e9cca;
+    border: 1px solid black;
         border-collapse: collapse;
     text-align: left;
     padding: 2em;
@@ -19,9 +19,9 @@ th, td {
 
 </style>
 </head>
-<body style="background-color: #25274d">
+<body style="background-color: #79b5d6">
 
-<h1 style="font-family: 'Roboto', sans-serif; color: white; font-size:4em;">Search Results</h1>
+<h1 style="font-family: 'Roboto', sans-serif; color: black; font-size:4em;">Search Results</h1>
 
 <table>
 
@@ -29,9 +29,9 @@ th, td {
     <tr>
       <td>
       <a class="article-title" href="{{ url_for('location', address=place.formatted_address, place_id=place.place_id) }}"
-            style="font-family: 'Roboto', sans-serif; color: white; font-size:2em;">{{ place.name }}</a>
+            style="font-family: 'Roboto', sans-serif; color: black; font-size:2em;">{{ place.name }}</a>
       </td>
-      <td style="font-family: 'Roboto', sans-serif; color: white; font-size:1em;">{{ place.formatted_address }}</td>
+      <td style="font-family: 'Roboto', sans-serif; color: black; font-size:1em;">{{ place.formatted_address }}</td>
     </tr>
   {% endfor %}
 

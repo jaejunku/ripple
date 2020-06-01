@@ -26,14 +26,17 @@
                     <div id="{{ post.post_id }}" class="modal-main">
                       <!-- Modal content -->
                       <div class="modal-content">
-                        <span class="close" onclick="closemodal('{{ post.post_id }}')">&times;</span>
-                        <img style="display:block; margin: 0 auto 1em;" src="{{ song.album_picture }}" alt="">
+                        <span class="close" onclick="stop('{{ song.song_uri[14:] }}'); closemodal('{{ post.post_id }}')">&times;</span>
+                        <img style="display:block; margin: 0 auto 1em; cursor: pointer" src="{{ song.album_picture }}" alt="" onclick="playorpause('{{ song.song_uri[14:] }}')" onmouseover="start('{{ song.song_uri[14:] }}')">
+                        <div class="post-title">
+                            "{{ post.post_title }}"
+                        </div>
                         <div class="post-text">
-                          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Temporibus quo illum facere. Nam delectus tempora natus placeat debitis reiciendis, nihil facere quos recusandae quo odio perferendis? Officia vero vel aliquid.
+                            {{ post.post_content }}
                         </div>
                         <div style="margin-top: 1em; margin-bottom: 1em;">
                           Submitted by {{ post.author_name }}
-                        <div class="button_cont" align="center">
+                        <div class="button_cont">
                             <a class="spotify_button" href="{{ 'https://open.spotify.com/track/' + post.song_id[14:] }}" target="_blank">Listen to the full track on Spotify</a>
                         </div>
                         </div>
@@ -42,7 +45,7 @@
                     <div class="album">
                         <audio id="{{ song.song_uri[14:] }}" src="{{ song.song_preview }}"></audio>
                         <img src="{{ song.album_picture }}" class="image" alt="" onmouseover="start('{{ song.song_uri[14:] }}')" onmouseout="stop('{{ song.song_uri[14:] }}')"
-                         onclick="displaymodal('{{ post.post_id }}')">
+                         onclick= "displaymodal('{{ post.post_id }}');">
                     </div>
                 {% endfor %}
                 {% endfor %}
@@ -59,6 +62,10 @@
             function stop(id) {
                 const audio = document.getElementById(id);
                 audio.pause();
+                audio.currentTime=0;
+            }
+            function reset(id){
+                const audio = document.getElementById(id);
                 audio.currentTime=0;
             }
             function playorpause(id) {
