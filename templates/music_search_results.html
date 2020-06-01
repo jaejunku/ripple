@@ -1,22 +1,72 @@
-{% if error %}
-    oops. something went wrong
-    {{ message }}
-    {{ search_json }}
-{% elif message %}
-    {{ message }}
-{% else %}
-    {% for track in tracks_list %}
-        <div>
-            <a href={{ url_for('add_song', place_id=place_id, song_uri=track.track_uri, address=address) }}>
-                <h2>Song: {{ track.song }}</h2>
-            </a>
-        <p>Artists: {% for artist in track.artists %} {{ artist }} {% endfor %}</p>
-        <p>Track URI: {{ track.track_uri }}</p>
-        <p>Preview URL: {{ track.preview_url }}</p>
-        <p>Album Name: {{ track.album_name }}</p>
-        <div>
-            <img src={{ track.album_images.1.url }} alt="Album Pic">
-        </div>
-        </div>
-    {% endfor %}
-{% endif %}
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="{{ url_for('static', filename='collection_display.css') }}">
+        <title>Music Search Results</title>
+    </head>
+    <body>
+        {% if error %}
+            oops. something went wrong
+            {{ message }}
+            {{ search_json }}
+        {% elif message %}
+            {{ message }}
+        {% else %}
+            <div class="main">
+                <div class="title">
+                    <div class="inner-width">
+                        <div class="name">Song Search Results</div>
+                    </div>
+                </div>
+                <div class="gallery">
+                    {% for track in tracks_list %}
+                        <div class="album">
+                        <audio id="{{ track.track_uri[14:] }}" src="{{ track.preview_url }}"></audio>
+                        <img src="{{ track.album_images.1.url }}" class="image" alt="" onmouseover="start('{{ track.track_uri[14:] }}')" onmouseout="stop('{{ track.track_uri[14:] }}')"
+                         onclick= "playorpause('{{ track.track_uri[14:] }}')">
+                        <div style="text-align: center;  font-weight: bold">
+                            <a style="color: black; cursor: pointer" href="{{ url_for('add_song', place_id=place_id, song_uri=track.track_uri, address=address) }}">
+                            {{ track.song }}
+                            </a>
+                        </div>
+                        <div style="text-align: center">
+                            {{ track.album_name }}
+                        </div>
+                        <div style="text-align: center; margin-bottom: 1em; margin-top: 1em;">
+                            {% for artist in track.artists %}
+                                {{ artist }}
+                                {{ "," if not loop.last }}
+                            {% endfor %}
+                        </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <script>
+            function start(id) {
+                const audio = document.getElementById(id);
+                audio.play();
+            }
+            function stop(id) {
+                const audio = document.getElementById(id);
+                audio.pause();
+                audio.currentTime=0;
+            }
+            function reset(id){
+                const audio = document.getElementById(id);
+                audio.currentTime=0;
+            }
+            function playorpause(id) {
+                const audio = document.getElementById(id);
+                if (audio.duration > 0 && !audio.paused) {
+                    audio.pause();
+                } else {
+                    audio.play();
+                }
+            }
+        </script>
+        {% endif %}
+    </body>
+
