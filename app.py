@@ -7,9 +7,8 @@ from flask_apscheduler import APScheduler
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField
 
-# TODO change background of search results page for location
-# TODO revamp search results for music
 # TODO frontend work for add if no collection exists
+# TODO make post page pretty
 # TODO anchor tag for collections near you/personal collections and separate page?
 # TODO Add home/logout button to pages
 # TODO frontend work for places/music display 

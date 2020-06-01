@@ -86,7 +86,12 @@
             }
         </script>
     {% else %}
-        <a href={{ url_for('search_music', place_id=place_id, address=address) }}>Add Song</a>
+        <div style="text-align: center; margin-top: 15em;">
+            <div class="no-existing-collection">
+                It looks like there aren't any collections for this location yet.
+            </div>
+                <a href="{{ url_for('search_music', place_id=place_id, address=address) }}"><button class="login_button" >Start a collection</button></a>
+        </div>
     {% endif %}
 
   </body>

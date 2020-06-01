@@ -181,3 +181,31 @@ border-color: #edb5bf !important;
 transition: all 0.4s ease 0s;
 cursor: pointer;
 }
+
+.no-existing-collection{
+    max-width:100%;
+    max-height:100%;
+    overflow:auto;
+    font-size: 2.5em;
+    font-weight: bold;
+}
+
+.login_button {
+color: black;
+text-transform: uppercase;
+margin-top: 4em;
+text-decoration: none;
+border: medium solid black;
+background: #86b3d1;
+padding: 25px;
+font-size: 2em;
+display: inline-block;
+transition: all 0.4s ease 0s;
+}
+
+.login_button:hover {
+color: black;
+background: #edb5bf;
+transition: all 0.4s ease 0s;
+cursor: pointer;
+}
