@@ -33,15 +33,35 @@
         <div class="main-left">
             <div class="collections-title">Collections Near You</div>
             <div>
+                {% set count = namespace(value=0) %}
                 {% for collection in nearby_collections %}
-                <div class="collections-list"><a style="color: black;" href={{ url_for('location', place_id=collection.id, address=collection.address) }}>{{ collection.name }}</a></div>
+                    <div class="collections-list"><a style="color: black;" href={{ url_for('location', place_id=collection.id, address=collection.address) }}>{{ collection.name }}</a></div>
+                    {% set count.value = count.value + 1 %}
                 {% endfor %}
+                {% if count.value < 5 %}
+                    {% for num in range(5-count.value) %}
+                    <div class="collections-list"> </div>
+                    {% endfor %}
+                {% endif %}
             </div>
         </div>
         <div class="main-right">
             <div class="collections-title">Your Personal Collections</div>
+            <div>
+                {% set counter = namespace(value=0) %}
+                {% for collection in user_collections %}
+                    {% if counter.value <= 5 %}
+                        <div class="collections-list"><a style="color: black;" href={{ url_for('location', place_id=collection.id, address=collection.address) }}>{{ collection.name }}</a></div>
+                        {% set counter.value = counter.value + 1 %}
+                    {% endif %}
+                {% endfor %}
+                {% if counter.value < 5 %}
+                    {% for num in range(5-counter.value) %}
+                    <div class="collections-list">&nbsp;</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
         </div>
-
     </body>
   {% endif %}
 </html>

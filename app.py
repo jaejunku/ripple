@@ -7,10 +7,8 @@ from flask_apscheduler import APScheduler
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField
 
-# TODO make post page pretty
 # TODO anchor tag for collections near you/personal collections and separate page?
 # TODO Add home/logout button to pages
-# TODO frontend work for places/music display 
 # TODO homepage collections near you/your personal collections
 # TODO frontend design
 
@@ -97,11 +95,19 @@ def home():
              (lng - Collection.long) * (lng - Collection.long))).limit(5).all()
         # Query user's personal collections, when rendering in template do if statements to avoid repeat collections
         user_posts = Post.query.filter_by(author_id=session['current_user_id']).all()
-
-
+        user_collections = []
+        for post in user_posts:
+            if post.collection_id not in user_collections:
+                user_collections.append(post.collection_id)
+        final_user_collections = []
+        for collection in user_collections:
+            place_name = Collection.query.filter_by(id=collection).first()
+            if place_name != None:
+                final_user_collections.append(place_name)
         return render_template('home.html',
                                display_name=user_json.get("display_name"),
                                nearby_collections=nearby_collections,
+                               user_collections=final_user_collections,
                                id=user_json.get("id"),
                                email=user_json.get("email"),
                                images=user_json.get("images"),
@@ -235,7 +241,7 @@ def search_music(place_id, address):
         return redirect(
             url_for('music_search_results', input_music=search_form.search.data, place_id=place_id, address=address))
     return render_template('search.html', title='Search Music', form=search_form, search_type='Music',
-                           searchtype = "SONG", login_authorized=check_authorization())
+                           searchtype="SONG", login_authorized=check_authorization())
 
 
 @app.route('/collection/<string:place_id>/address/<string:address>/musicsearchresults/<string:input_music>')
@@ -304,7 +310,8 @@ def add_song(place_id, address, song_uri):
             else:
                 post_author_id = session['current_user_id']
                 post_author_name = session['current_user_name']
-            post = Post(post_content=post_form.content.data, post_title=post_form.post_title.data, song_id=song_uri, collection_id=place_id,
+            post = Post(post_content=post_form.content.data, post_title=post_form.post_title.data, song_id=song_uri,
+                        collection_id=place_id,
                         author_id=post_author_id, author_name=post_author_name)
             db.session.add(post)
             db.session.commit()
