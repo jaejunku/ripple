@@ -22,8 +22,7 @@
                 </div>
             </div>
              <div class="gallery">
-                {% for song, posts in posts_dict.items() %}
-                    {% for post in posts %}
+                {% for post, song in posts_dict.items() %}
                     <!-- The Modal -->
                     <div id="{{ post.post_id }}" class="modal-main">
                       <!-- Modal content -->
@@ -49,7 +48,6 @@
                         <img src="{{ song.album_picture }}" class="image" alt="" onmouseover="start('{{ song.song_uri[14:] }}')" onmouseout="stop('{{ song.song_uri[14:] }}')"
                          onclick= "displaymodal('{{ post.post_id }}');">
                     </div>
-                {% endfor %}
                 {% endfor %}
                 <div class="album">
                     <a href="{{ url_for('search_music', place_id=place_id, address=address) }}"><button class="add-button" >Add a song</button></a>

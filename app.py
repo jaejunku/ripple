@@ -8,11 +8,10 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField
 
 # TODO anchor tag for collections near you/personal collections and separate page?
-# TODO page when no search results are found
+# TODO page when no search results are found for song --> button to search again
+# TODO page when no search results are found for location --> button to search again
 # TODO search for a song
-# TODO Add home/logout button to pages
-# TODO homepage collections near you/your personal collections
-# TODO frontend design
+# TODO in location, order songs/posts by most recently added
 
 app = Flask(__name__)
 google_api_key = 'AIzaSyC7rX_hVNjF2MH2uQM4StN7tDtkHd0AqAk'
@@ -228,9 +227,12 @@ def location(place_id, address):
                                place_name=place_name, login_authorized=check_authorization())
     else:
         songs = Song.query.filter_by(collection_id=place_id)
+        posts = Post.query.filter_by(collection_id=place_id).order_by(Post.date_posted.desc())
         posts_dict = {}
-        for song in songs:
-            posts_dict[song] = Post.query.filter_by(song_id=song.song_uri, collection_id=place_id)
+        for post in posts:
+            posts_dict[post] = Song.query.filter_by(song_uri=post.song_id, collection_id=place_id).first()
+        # for song in songs:
+        #     posts_dict[song] = Post.query.filter_by(song_id=song.song_uri, collection_id=place_id)
         return render_template('place.html', in_db=True, posts_dict=posts_dict, place_id=place_id,
                                address=address.replace("%20", " ").replace("%2C", " "), place_name=place_name,
                                login_authorized=check_authorization())
