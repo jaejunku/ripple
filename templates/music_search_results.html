@@ -15,6 +15,8 @@
             {{ message }}
         {% else %}
             <div class="main">
+                <a href="{{ url_for('home') }}" class="home-button">Home</a>
+                <a href="{{ url_for('logout') }}" class="logout-button">Log Out</a>
                 <div class="title">
                     <div class="inner-width">
                         <div class="name">Song Search Results</div>
@@ -23,10 +25,8 @@
                 <div class="gallery">
                     {% for track in tracks_list %}
                         <div class="album">
-                        <audio id="{{ track.track_uri[14:] }}" src="{{ track.preview_url }}"></audio>
                         <a href="{{ url_for('add_song', place_id=place_id, song_uri=track.track_uri, address=address) }}">
-                        <img src="{{ track.album_images.1.url }}" class="image" alt="" onmouseover="start('{{ track.track_uri[14:] }}')" onmouseout="stop('{{ track.track_uri[14:] }}')"
-                         onclick= "playorpause('{{ track.track_uri[14:] }}')">
+                        <img src="{{ track.album_images.1.url }}" class="image" alt="">
                         </a>
                         <div style="text-align: center;  font-weight: bold">
                             <a style="color: black; cursor: pointer" href="{{ url_for('add_song', place_id=place_id, song_uri=track.track_uri, address=address) }}">
@@ -46,29 +46,6 @@
                     {% endfor %}
                 </div>
             </div>
-            <script>
-            function start(id) {
-                const audio = document.getElementById(id);
-                audio.play();
-            }
-            function stop(id) {
-                const audio = document.getElementById(id);
-                audio.pause();
-                audio.currentTime=0;
-            }
-            function reset(id){
-                const audio = document.getElementById(id);
-                audio.currentTime=0;
-            }
-            function playorpause(id) {
-                const audio = document.getElementById(id);
-                if (audio.duration > 0 && !audio.paused) {
-                    audio.pause();
-                } else {
-                    audio.play();
-                }
-            }
-        </script>
         {% endif %}
     </body>
 

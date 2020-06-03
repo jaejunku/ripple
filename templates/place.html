@@ -10,6 +10,8 @@
       <title>{{ place_name }}</title>
   </head>
   <body>
+    <a href="{{ url_for('home') }}" class="home-button">Home</a>
+    <a href="{{ url_for('logout') }}" class="logout-button">Log Out</a>
     {% if in_db %}
         <div class="main">
             <div class="title">

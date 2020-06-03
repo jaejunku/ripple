@@ -25,7 +25,7 @@ body {
 
 .album{
     width: 300px;
-    margin: 1em;
+    margin: 0.7em;
     overflow: hidden;
 }
 
@@ -208,4 +208,36 @@ color: black;
 background: #edb5bf;
 transition: all 0.4s ease 0s;
 cursor: pointer;
+}
+
+.logout-button{
+  position: absolute;
+  right: 1%;
+  top: 1%;
+  text-transform: uppercase;
+  font-size: 1em;
+  font-family: Roboto, sans-serif;
+  color: white;
+  text-decoration: none;
+}
+
+.logout-button:hover{
+  color: white !important;
+  cursor: pointer;
+}
+
+.home-button{
+  position: absolute;
+  left: 1%;
+  top: 1%;
+  text-transform: uppercase;
+  font-size: 1em;
+  font-family: Roboto, sans-serif;
+  color: white;
+  text-decoration: none;
+}
+
+.home-butto:hover{
+  color: white !important;
+  cursor: pointer;
 }

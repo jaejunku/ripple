@@ -8,6 +8,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField
 
 # TODO anchor tag for collections near you/personal collections and separate page?
+# TODO page when no search results are found
+# TODO search for a song
 # TODO Add home/logout button to pages
 # TODO homepage collections near you/your personal collections
 # TODO frontend design
@@ -291,30 +293,35 @@ def add_song(place_id, address, song_uri):
         music_search_request = requests.get('https://api.spotify.com/v1/tracks/' + str(song_uri[14:]),
                                             headers={'Authorization': 'Bearer ' + session['access_token']})
         music_search_json = music_search_request.json()
+
+        if post_form.is_anonymous.data:
+            post_author_id = session['current_user_id']
+            post_author_name = 'Anonymous'
+        else:
+            post_author_id = session['current_user_id']
+            post_author_name = session['current_user_name']
+
         if 'error' in music_search_json:
             return render_template('music_search_results.html', error=True, search_json=music_search_json,
                                    message=song_uri[14:],
                                    login_authorized=check_authorization())
         else:
-            album_picture = music_search_json['album']['images'][1]['url']
-            song_title = music_search_json['name']
-            artist = music_search_json['artists'][0]['name']
-            preview_url = music_search_json['preview_url']
-            song = Song(song_uri=song_uri, song_title=song_title, album_picture=album_picture, collection_id=place_id,
-                        artist=artist, song_preview=preview_url)
-            db.session.add(song)
-            db.session.commit()
-            if post_form.is_anonymous.data:
-                post_author_id = session['current_user_id']
-                post_author_name = 'Anonymous'
-            else:
-                post_author_id = session['current_user_id']
-                post_author_name = session['current_user_name']
+            if not Song.query.filter_by(collection_id=place_id, song_uri=song_uri).all():
+                album_picture = music_search_json['album']['images'][1]['url']
+                song_title = music_search_json['name']
+                artist = music_search_json['artists'][0]['name']
+                preview_url = music_search_json['preview_url']
+                song = Song(song_uri=song_uri, song_title=song_title, album_picture=album_picture, collection_id=place_id,
+                            artist=artist, song_preview=preview_url)
+                db.session.add(song)
+                db.session.commit()
+
             post = Post(post_content=post_form.content.data, post_title=post_form.post_title.data, song_id=song_uri,
                         collection_id=place_id,
                         author_id=post_author_id, author_name=post_author_name)
             db.session.add(post)
             db.session.commit()
+
             return redirect(url_for('location', place_id=place_id, address=address, author_id=post_author_id,
                                     post_author_name=post_author_name))
     return render_template('post.html', form=post_form)

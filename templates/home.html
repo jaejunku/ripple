@@ -50,7 +50,7 @@
             <div>
                 {% set counter = namespace(value=0) %}
                 {% for collection in user_collections %}
-                    {% if counter.value <= 5 %}
+                    {% if counter.value <= 4 %}
                         <div class="collections-list"><a style="color: black;" href={{ url_for('location', place_id=collection.id, address=collection.address) }}>{{ collection.name }}</a></div>
                         {% set counter.value = counter.value + 1 %}
                     {% endif %}
