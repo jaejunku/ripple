@@ -19,27 +19,35 @@ th, td {
 
 </style>
     <title>Place Search</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='collection_display.css') }}">
 </head>
-<body style="background-color: #79b5d6">
+<body style="background-color: #86b3d1">
 <a href="{{ url_for('logout') }}" class="logout-button">Log Out</a>
 <a href="{{ url_for('home') }}" class="home-button">Home</a>
+{% if error %}
+    <div style="text-align: center; margin-top: 15em;">
+        <div class="no-existing-collection">
+            We couldn't find any locations with that name. Please try again.
+        </div>
+            <a href="{{ url_for('search_location') }}"><button class="login_button" >Search Again</button></a>
+    </div>
+{% else %}
+    <h1 style="font-family: 'Roboto', sans-serif; color: black; font-size:4em;">Search Results</h1>
 
-<h1 style="font-family: 'Roboto', sans-serif; color: black; font-size:4em;">Search Results</h1>
+    <table>
 
-<table>
+      {% for place in location_list %}
+        <tr>
+          <td>
+          <a class="article-title" href="{{ url_for('location', address=place.formatted_address, place_id=place.place_id) }}"
+                style="font-family: 'Roboto', sans-serif; color: black; font-size:2em;">{{ place.name }}</a>
+          </td>
+          <td style="font-family: 'Roboto', sans-serif; color: black; font-size:1em;">{{ place.formatted_address }}</td>
+        </tr>
+      {% endfor %}
 
-  {% for place in location_list %}
-    <tr>
-      <td>
-      <a class="article-title" href="{{ url_for('location', address=place.formatted_address, place_id=place.place_id) }}"
-            style="font-family: 'Roboto', sans-serif; color: black; font-size:2em;">{{ place.name }}</a>
-      </td>
-      <td style="font-family: 'Roboto', sans-serif; color: black; font-size:1em;">{{ place.formatted_address }}</td>
-    </tr>
-  {% endfor %}
-
-</table>
-
+    </table>
+{% endif %}
 </body>
 </html>
 

@@ -8,10 +8,9 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField
 
 # TODO anchor tag for collections near you/personal collections and separate page?
-# TODO page when no search results are found for song --> button to search again
-# TODO page when no search results are found for location --> button to search again
 # TODO search for a song
-# TODO in location, order songs/posts by most recently added
+# TODO song title for post?
+# TODO ability to play song when writing post
 
 app = Flask(__name__)
 google_api_key = 'AIzaSyC7rX_hVNjF2MH2uQM4StN7tDtkHd0AqAk'
@@ -49,7 +48,6 @@ class Song(db.Model):
 
 class Post(db.Model):
     post_id = db.Column(db.Integer, primary_key=True)
-    # post_picture = db.Column(db.String)
     post_content = db.Column(db.Text)
     post_title = db.Column(db.String)
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
@@ -62,7 +60,6 @@ class Post(db.Model):
         return f"Post('{self.post_id}', '{self.date_posted}')"
 
 
-# TODO add data required validator
 class SearchForm(FlaskForm):
     search = StringField()
     submit = SubmitField('Search')
@@ -195,7 +192,7 @@ def search_location_call(input_location):
     # Now convert the response into Python dictionary
     results = search_request.json()
     # TODO if there is no match, allow search again or route to far-search
-    # If results is empty list (no results found), we want to ask again or give option to find somewhere far away
+    # If results is empty list (no results found), we want to ask again
     # Redirect to new route?
     if not results['results']:
         return render_template('place_search_results.html', title='Oops', error=True,
@@ -226,13 +223,10 @@ def location(place_id, address):
                                address=address.replace("%20", " ").replace("%2C", " "),
                                place_name=place_name, login_authorized=check_authorization())
     else:
-        songs = Song.query.filter_by(collection_id=place_id)
         posts = Post.query.filter_by(collection_id=place_id).order_by(Post.date_posted.desc())
         posts_dict = {}
         for post in posts:
-            posts_dict[post] = Song.query.filter_by(song_uri=post.song_id, collection_id=place_id).first()
-        # for song in songs:
-        #     posts_dict[song] = Post.query.filter_by(song_id=song.song_uri, collection_id=place_id)
+            posts_dict[post] = Song.query.filter_by(song_uri=post.song_id).first()
         return render_template('place.html', in_db=True, posts_dict=posts_dict, place_id=place_id,
                                address=address.replace("%20", " ").replace("%2C", " "), place_name=place_name,
                                login_authorized=check_authorization())
@@ -261,7 +255,7 @@ def music_search_results(place_id, address, input_music):
                                login_authorized=check_authorization())
     elif not search_json['tracks']['items']:
         return render_template('music_search_results.html', message='No results were found for this track.',
-                               login_authorized=check_authorization())
+                               place_id=place_id, address=address, login_authorized=check_authorization())
     else:
         tracks_list = []
         for track in search_json['tracks']['items']:

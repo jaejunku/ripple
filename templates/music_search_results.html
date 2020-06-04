@@ -12,7 +12,13 @@
             {{ message }}
             {{ search_json }}
         {% elif message %}
-            {{ message }}
+            <div style="text-align: center; margin-top: 15em;">
+            <div class="no-existing-collection">
+                {{ message }}
+            </div>
+                <a href="{{ url_for('search_music', place_id=place_id, address=address) }}"><button class="login_button" >Search Again</button></a>
+            </div>
+
         {% else %}
             <div class="main">
                 <a href="{{ url_for('home') }}" class="home-button">Home</a>
