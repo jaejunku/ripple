@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+table {
+  border: 1px solid #2e9cca;
+    border-collapse: collapse;
+
+  width: 100%;
+
+}
+
+th, td {
+    border: 1px solid black;
+        border-collapse: collapse;
+    text-align: left;
+    padding: 2em;
+}
+
+</style>
+    <title>Your Personal Collections</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='collection_display.css') }}">
+</head>
+<body style="background-color: #f9b2e4">
+<a href="{{ url_for('logout') }}" class="logout-button">Log Out</a>
+<a href="{{ url_for('home') }}" class="home-button">Home</a>
+
+    <h1 style="font-family: 'Roboto', sans-serif; color: black; font-size:4em;">Your Personal Collections</h1>
+
+    <table>
+
+      {% for place in personal_collections %}
+        <tr>
+          <td>
+          <a class="article-title" href="{{ url_for('location', address=place.address, place_id=place.id) }}"
+                style="font-family: 'Roboto', sans-serif; color: black; font-size:2em;">{{ place.name }}</a>
+          </td>
+          <td style="font-family: 'Roboto', sans-serif; color: black; font-size:1em;">{{ place.formatted_address }}</td>
+        </tr>
+      {% endfor %}
+
+    </table>
+</body>
+</html>
+
+
+

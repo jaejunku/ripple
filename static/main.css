@@ -19,7 +19,7 @@ body > div { display: inline-block; }
   color: black;
   font-family: Roboto, sans-serif;
   font-size: 3em;
-  margin-top: 0.5em;
+  margin-top: 0;
   margin-left: 10px;
   margin-bottom: 0.5em;
 }
@@ -33,7 +33,7 @@ body > div { display: inline-block; }
 }
 
 .welcome-text{
-  top: 5%;
+  top: 0;
   left: 5%;
   max-width: 35%;
 }
@@ -109,7 +109,7 @@ font-size: 1em;
 text-decoration: none;
 background: #4d6d9a;
 margin-left: 10px;
-margin-top: 5em;
+margin-top: 2em;
 margin-bottom: 4em;
 padding: 15px;
 border-radius: 45px;

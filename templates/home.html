@@ -25,18 +25,30 @@
             <a href="{{ url_for('logout') }}" class="logout-button">Log Out</a>
             <div class="welcome-text">
                 <div class="title">Welcome to Ripple.</div>
-                <div class="content">Lorem ipsum dolor sit amet, consectetur adipisicing elit. A aliquam commodi doloremque esse itaque iusto, labore laborum maxime odio, quidem quos, repellat rerum? Ab, asperiores aspernatur assumenda atque distinctio dolor dolore eveniet facilis, id illo ipsa ipsam minus nemo nobis porro quam quia quibusdam quis ratione rerum soluta suscipit temporibus vel vitae voluptate. Accusamus dignissimos ea esse expedita itaque mollitia nobis, numquam odio, quaerat qui vel voluptatibus?</div>
+                <div class="content">
+                    Some songs are especially meaningful. Just a few notes can stir up visceral emotional reactions, transporting us to a time and place of a powerful memory. Ripple is a means of collecting these songs, lying at the beautiful intersection of geography, music discovery, and social connection.
+                </div>
+                <div class="content">
+                    As you browse collections, read the stories of strangers, and listen to the musical footprint they left behind, feel free to share your own memories. The platform is only as valuable as the stories it contains.
+                </div>
+                <div class="content">
+                    Use Google Chrome for the best experience.
+                </div>
                 <a href="{{ url_for('search_location') }}"><button class="search_button" >Search for a location</button></a>
-                <button class="search_button">Search for a song</button>
+                <a href="{{ url_for('search_song') }}"><button class="search_button">Search for a song</button></a>
             </div>
         </div>
         <div class="main-left">
-            <div class="collections-title">Collections Near You</div>
+            <div class="collections-title">
+                <a href="{{ url_for('nearby_collections') }}" style="color: inherit;">Collections Near You</a>
+            </div>
             <div>
                 {% set count = namespace(value=0) %}
                 {% for collection in nearby_collections %}
+                    {% if count.value <= 4 %}
                     <div class="collections-list"><a style="color: black;" href={{ url_for('location', place_id=collection.id, address=collection.address) }}>{{ collection.name }}</a></div>
                     {% set count.value = count.value + 1 %}
+                    {% endif %}
                 {% endfor %}
                 {% if count.value < 5 %}
                     {% for num in range(5-count.value) %}
@@ -46,7 +58,9 @@
             </div>
         </div>
         <div class="main-right">
-            <div class="collections-title">Your Personal Collections</div>
+            <div class="collections-title">
+                <a href="{{ url_for('user_collections') }}" style="color: inherit;">Your Personal Collections</a>
+            </div>
             <div>
                 {% set counter = namespace(value=0) %}
                 {% for collection in user_collections %}

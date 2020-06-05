@@ -18,7 +18,7 @@
         <div class="search-wrapper">
         <div style="margin-top: 3em; font-weight: bold; text-transform: uppercase; font-family: Roboto, sans-serif; font-size: 2em;">Create a Post</div>
         <form method="POST" action="" class="post-parent-wrapper">
-            <img style="float: right; margin-right: 10px;" src="https://store-images.s-microsoft.com/image/apps.46943.9007199266245148.65716085-8f7e-40af-9dd6-34b7bc30c6dd.af0b8fbf-5d63-4c74-97a9-31eefb48822b?mode=scale&q=90&h=300&w=300" alt="">
+            <img style="float: right; margin-right: 5em; margin-top: 2em;" src="{{ pictureurl }}" alt="">
             {{ form.hidden_tag() }}
             <fieldset class="form-group" style="margin-top: 3em;">
                 <div class="form-group">
@@ -46,6 +46,7 @@
             <div class="submit">
                 {{ form.submit(class="post-button") }}
             </div>
+            <div style="font-family: Roboto, sans-serif; font-size: 1em; font-weight: lighter; margin-top: 2em;">Note: Before submitting your post, please copy its contents or have it stored locally. You may be asked to log back in again, and in that case your written work will not be saved.</div>
         </form>
         </div>
     </div>

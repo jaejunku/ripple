@@ -29,6 +29,12 @@
                       <div class="modal-content">
                         <span class="close" onclick="stop('{{ song.song_uri[14:] }}'); closemodal('{{ post.post_id }}')">&times;</span>
                         <img style="display:block; margin: 0 auto 1em; cursor: pointer" src="{{ song.album_picture }}" alt="" onclick="playorpause('{{ song.song_uri[14:] }}')" onmouseover="start('{{ song.song_uri[14:] }}')">
+                        <div style="font-family: Roboto, sans-serif; font-size: 1em; font-weight: lighter; margin-top: 2em; margin-bottom: 1em;" >
+                            Song: {{ song.song_title }}
+                        </div>
+                        <div style="font-family: Roboto, sans-serif; font-size: 1em; font-weight: lighter; margin-bottom: 1em;" >
+                            Artist: {{ song.artist }}
+                        </div>
                         <div class="post-title">
                             "{{ post.post_title }}"
                         </div>

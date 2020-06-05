@@ -1,3 +1,4 @@
+import os
 import geocoder
 import requests
 from datetime import datetime
@@ -7,27 +8,30 @@ from flask_apscheduler import APScheduler
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField
 
-# TODO anchor tag for collections near you/personal collections and separate page?
-# TODO search for a song
-# TODO song title for post?
-# TODO ability to play song when writing post
 
 app = Flask(__name__)
-google_api_key = 'AIzaSyC7rX_hVNjF2MH2uQM4StN7tDtkHd0AqAk'
-app.config['SECRET_KEY'] = 'b87cd65425cbfb553740894dcc2fd0fe'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+google_api_key = 'YOUR GOOGLE API KEY'
+app.config['SECRET_KEY'] = 'YOUR SECRET KEY'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 db = SQLAlchemy(app)
+
+association_table = db.Table('association',
+                             db.Column('collection_id', db.String, db.ForeignKey('collection.id')),
+                             db.Column('song_id', db.String, db.ForeignKey('song.song_uri'))
+                             )
 
 
 # Database classes: A collection can have many songs, a song can have many posts
+
 class Collection(db.Model):
     id = db.Column(db.String, primary_key=True)
     lat = db.Column(db.Float)
     address = db.Column(db.String, nullable=False)
     name = db.Column(db.String)
     long = db.Column(db.Float)
-    songs = db.relationship('Song', backref='collection', lazy=True)
-    posts = db.relationship('Post', backref='collection', lazy=True)
+    songs = db.relationship('Song', secondary=association_table, backref=db.backref('collections', lazy='dynamic'),
+                            lazy='dynamic')
+    posts = db.relationship('Post', backref='collection', lazy='dynamic')
 
     def __repr__(self):
         return f"Collection('{self.id}')"
@@ -39,8 +43,7 @@ class Song(db.Model):
     artist = db.Column(db.String, nullable=False)
     song_title = db.Column(db.String, nullable=False)
     album_picture = db.Column(db.String, nullable=False)
-    users = db.relationship('Post', backref='song', lazy=True)
-    collection_id = db.Column(db.String, db.ForeignKey('collection.id'), nullable=False)
+    users = db.relationship('Post', backref='songs', lazy='dynamic')
 
     def __repr__(self):
         return f"Song('{self.song_uri}', '{self.song_title}')"
@@ -77,7 +80,7 @@ class PostForm(FlaskForm):
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
 def home():
-    if 'access_token' in session:
+    if 'access_token' in session and session['access_token'] is not None:
         user_profile = requests.get('https://api.spotify.com/v1/me',
                                     headers={'Authorization': 'Bearer ' + session['access_token']})
         user_json = user_profile.json()
@@ -86,11 +89,17 @@ def home():
         # Calculate collections near user
         # Get rough estimate of user's location
         coords = geocoder.ip('me').latlng
-        lat = str(coords[0])
-        lng = str(coords[1])
+        if coords is None:
+            ip = request.remote_addr
+            coords = geocoder.ip(str(ip))
+            lat = coords[0]
+            lng = coords[1]
+        else:
+            lat = coords[0]
+            lng = coords[1]
         nearby_collections = Collection.query.order_by(
-            ((lat - Collection.lat) * (lat - Collection.lat) +
-             (lng - Collection.long) * (lng - Collection.long))).limit(5).all()
+            (lat - Collection.lat) * (lat - Collection.lat) +
+            (lng - Collection.long) * (lng - Collection.long)).limit(50).all()
         # Query user's personal collections, when rendering in template do if statements to avoid repeat collections
         user_posts = Post.query.filter_by(author_id=session['current_user_id']).all()
         user_collections = []
@@ -100,7 +109,7 @@ def home():
         final_user_collections = []
         for collection in user_collections:
             place_name = Collection.query.filter_by(id=collection).first()
-            if place_name != None:
+            if place_name is not None:
                 final_user_collections.append(place_name)
         return render_template('home.html',
                                display_name=user_json.get("display_name"),
@@ -136,9 +145,8 @@ def logout():
 @app.route('/authorize', methods=['GET'])
 def authorize():
     return redirect(
-        'https://accounts.spotify.com/authorize?client_id=2bf4792df3c4489bb9720d3346d63f53&response_type=code'
-        '&redirect_uri=http%3A%2F%2F127.0.0.1%3A5000%2Fcallback%2F&scope=user-read-private%20user-read-email%20user'
-        '-top-read%20')
+        'https://accounts.spotify.com/authorize?client_id=YOURCLIENTID&response_type=code'
+        '&redirect_uri=http%3A%2F%2Frippleforspotify.herokuapp.com%2Fcallback%2F')
 
 
 @app.route('/callback/', methods=['GET', 'POST'])
@@ -152,7 +160,7 @@ def callback():
         payload = {
             'grant_type': 'authorization_code',
             'code': session['code'],
-            'redirect_uri': 'http://127.0.0.1:5000/callback/',
+            'redirect_uri': 'http://rippleforspotify.herokuapp.com/callback/',
             'client_id': '2bf4792df3c4489bb9720d3346d63f53',
             'client_secret': 'c615ba249c4249a1a55cf459b606819b'
         }
@@ -169,8 +177,8 @@ def refresh_access_token():
         'grant_type': 'refresh_token',
         'refresh_token': session['refresh_token']
     }
-    header = 'Authorization: Basic 2bf4792df3c4489bb9720d3346d63f53:c615ba249c4249a1a55cf459b606819b'
-    new_token_response = requests.post('https://accounts.spotify.com/api/token', headers=header, data=payload)
+    headers = {'Authorization': 'Basic YOUR SPOTIFY CLIENT ID:YOUR SPOTIFY CLIENT SECRET'}
+    new_token_response = requests.post('https://accounts.spotify.com/api/token', headers=headers, data=payload)
     new_token_json = new_token_response.json()
     session['access_token'] = new_token_json.get("access_token")
 
@@ -191,7 +199,6 @@ def search_location_call(input_location):
                                   + '&query=' + input_location.replace(" ", "+"))
     # Now convert the response into Python dictionary
     results = search_request.json()
-    # TODO if there is no match, allow search again or route to far-search
     # If results is empty list (no results found), we want to ask again
     # Redirect to new route?
     if not results['results']:
@@ -232,6 +239,58 @@ def location(place_id, address):
                                login_authorized=check_authorization())
 
 
+# These functions are for searching a song that will lead to collections containing the song
+@app.route('/searchsong', methods=['GET', 'POST'])
+def search_song():
+    search_form = SearchForm()
+    if search_form.validate_on_submit():
+        return redirect(
+            url_for('song_search_results', input_music=search_form.search.data))
+    return render_template('search.html', title='Search Music', form=search_form,
+                           searchtype="SONG", login_authorized=check_authorization())
+
+
+@app.route('/searchsong/<string:input_music>', methods=['GET', 'POST'])
+def song_search_results(input_music):
+    search_request = requests.get('https://api.spotify.com/v1/search',
+                                  headers={'Authorization': 'Bearer ' + session['access_token']},
+                                  params={'q': input_music,
+                                          'type': ['track']}
+                                  )
+    search_json = search_request.json()
+    if 'error' in search_json:
+        return render_template('song_search_results.html', error=True, search_json=search_json,
+                               login_authorized=check_authorization())
+    elif not search_json['tracks']['items']:
+        return render_template('song_search_results.html', message='No results were found for this track.',
+                               login_authorized=check_authorization())
+    else:
+        tracks_list = []
+        for track in search_json['tracks']['items']:
+            track_dict = {'song': track['name'],
+                          'artists': [artist['name'] for artist in track['artists']],
+                          'track_uri': track['uri'],
+                          'preview_url': track['preview_url'],
+                          'album_name': track['album']['name'],
+                          'album_images': track['album']['images']
+                          }
+            tracks_list.append(track_dict)
+        return render_template('song_search_results.html', tracks_list=tracks_list,
+                               login_authorized=check_authorization())
+
+
+@app.route('/searchsong/getcollection/<string:song_uri>', methods=['GET', 'POST'])
+def get_collections_from_song(song_uri):
+    song = Song.query.filter_by(song_uri=song_uri).first()
+    if not song:
+        return render_template('collections_from_song.html', error=True)
+    final_list = song.collections.all()
+    if not final_list:
+        return render_template('collections_from_song.html', error=True)
+    return render_template('collections_from_song.html', final_list=final_list)
+
+
+# These functions are for searching for/adding a song to a specific collection
 @app.route('/collection/<string:place_id>/address/<string:address>/searchmusic', methods=['GET', 'POST'])
 def search_music(place_id, address):
     search_form = SearchForm()
@@ -274,8 +333,14 @@ def music_search_results(place_id, address, input_music):
 @app.route('/collection/<string:place_id>/address/<string:address>/addsong/<string:song_uri>', methods=['GET', 'POST'])
 def add_song(place_id, address, song_uri):
     post_form = PostForm()
+
+    music_search_request = requests.get('https://api.spotify.com/v1/tracks/' + str(song_uri[14:]),
+                                        headers={'Authorization': 'Bearer ' + session['access_token']})
+    music_search_json = music_search_request.json()
+    album_picture = music_search_json['album']['images'][1]['url']
+
     if post_form.validate_on_submit():
-        if Collection.query.filter_by(id=place_id).first() is None:
+        if not Collection.query.filter_by(id=place_id).first():
             search_request = requests.get(
                 'https://maps.googleapis.com/maps/api/place/details/json?key=' + google_api_key
                 + '&place_id=' + str(place_id) + '&fields=name,geometry')
@@ -286,9 +351,6 @@ def add_song(place_id, address, song_uri):
             collection = Collection(id=place_id, lat=lat, long=lng, address=address, name=name)
             db.session.add(collection)
             db.session.commit()
-        music_search_request = requests.get('https://api.spotify.com/v1/tracks/' + str(song_uri[14:]),
-                                            headers={'Authorization': 'Bearer ' + session['access_token']})
-        music_search_json = music_search_request.json()
 
         if post_form.is_anonymous.data:
             post_author_id = session['current_user_id']
@@ -302,15 +364,20 @@ def add_song(place_id, address, song_uri):
                                    message=song_uri[14:],
                                    login_authorized=check_authorization())
         else:
-            if not Song.query.filter_by(collection_id=place_id, song_uri=song_uri).all():
-                album_picture = music_search_json['album']['images'][1]['url']
+            # If song is not in database yet
+            song = Song.query.filter_by(song_uri=song_uri).first()
+            if not song:
                 song_title = music_search_json['name']
                 artist = music_search_json['artists'][0]['name']
                 preview_url = music_search_json['preview_url']
-                song = Song(song_uri=song_uri, song_title=song_title, album_picture=album_picture, collection_id=place_id,
+                song = Song(song_uri=song_uri, song_title=song_title, album_picture=album_picture,
                             artist=artist, song_preview=preview_url)
                 db.session.add(song)
                 db.session.commit()
+            # If song is in database
+            collection = Collection.query.filter_by(id=place_id).first()
+            collection.songs.append(song)
+            db.session.commit()
 
             post = Post(post_content=post_form.content.data, post_title=post_form.post_title.data, song_id=song_uri,
                         collection_id=place_id,
@@ -320,11 +387,50 @@ def add_song(place_id, address, song_uri):
 
             return redirect(url_for('location', place_id=place_id, address=address, author_id=post_author_id,
                                     post_author_name=post_author_name))
-    return render_template('post.html', form=post_form)
+    return render_template('post.html', form=post_form, pictureurl=album_picture)
 
 
-# @app.route('/home/<str:user_id>')
-# @app.route('/home/<str:user_id>')
+@app.route('/nearbycollections')
+def nearby_collections():
+    if 'access_token' in session and session['access_token'] is not None:
+        user_profile = requests.get('https://api.spotify.com/v1/me',
+                                    headers={'Authorization': 'Bearer ' + session['access_token']})
+        user_json = user_profile.json()
+        session['current_user_name'] = user_json.get("display_name")
+        session['current_user_id'] = user_json.get("id")
+        # Calculate collections near user
+        # Get rough estimate of user's location
+        coords = geocoder.ip('me').latlng
+        if coords is None:
+            ip = request.remote_addr
+            coords = geocoder.ip(str(ip))
+            lat = coords[0]
+            lng = coords[1]
+        else:
+            lat = coords[0]
+            lng = coords[1]
+        nearby = Collection.query.order_by(
+            (lat - Collection.lat) * (lat - Collection.lat) +
+            (lng - Collection.long) * (lng - Collection.long)).limit(50).all()
+        return render_template('nearby_collections.html', nearby_collections=nearby)
+    else:
+        return render_template('home.html', login_authorized=False)
+
+
+
+@app.route('/personalcollections')
+def user_collections():
+    user_posts = Post.query.filter_by(author_id=session['current_user_id']).all()
+    user_collections = []
+    for post in user_posts:
+        if post.collection_id not in user_collections:
+            user_collections.append(post.collection_id)
+    final_user_collections = []
+    for collection in user_collections:
+        place_name = Collection.query.filter_by(id=collection).first()
+        if place_name is not None:
+            final_user_collections.append(place_name)
+    return render_template('personal_collections.html', personal_collections=final_user_collections)
 
 
 if __name__ == '__main__':
